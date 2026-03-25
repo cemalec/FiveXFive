@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, Vibration, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, TouchableOpacity, Vibration, View } from 'react-native';
 
 const DURATION = 180; // 3 minutes in seconds
 
-export default function RestTimer() {
+type Props = {
+  startSignal?: number; // increments each time a set is checked — triggers the timer to start
+};
+
+export default function RestTimer({ startSignal = 0 }: Props) {
   const [secondsLeft, setSecondsLeft] = useState(DURATION);
   const [isRunning, setIsRunning] = useState(false);
 
@@ -24,9 +28,18 @@ export default function RestTimer() {
 
     setIsRunning(false);
     setSecondsLeft(DURATION);
-    Vibration.vibrate([0, 400, 200, 400]); // two short bursts
+    if (Platform.OS !== 'web') {
+      Vibration.vibrate([0, 400, 200, 400]);
+    }
     Alert.alert('Rest Over', "Time's up — start your next set!");
   }, [secondsLeft]);
+
+  // When a set is checked off externally, restart the timer from the top
+  useEffect(() => {
+    if (startSignal === 0) return;
+    setSecondsLeft(DURATION);
+    setIsRunning(true);
+  }, [startSignal]);
 
   function handlePress() {
     if (isRunning) {

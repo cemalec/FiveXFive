@@ -12,6 +12,20 @@ export type WorkoutState = {
   increments: Record<ExerciseKey, number>;
 };
 
+export type WorkoutExerciseLog = {
+  name: string;
+  weight: number;
+  sets: number[];
+};
+
+export type WorkoutLogEntry = {
+  id: string;
+  completedAt: string;
+  day: 'A' | 'B';
+  storageUnit: Unit;
+  exercises: WorkoutExerciseLog[];
+};
+
 function convertUnitValue(value: number, fromUnit: Unit, toUnit: Unit): number {
   if (fromUnit === toUnit) return value;
   if (fromUnit === 'lbs' && toUnit === 'kg') return value * 0.453592;
@@ -87,6 +101,7 @@ export function roundAllToUnit(state: WorkoutState, targetUnit: Unit): WorkoutSt
 }
 
 const STORAGE_KEY = '@fivexfive_workout';
+const HISTORY_STORAGE_KEY = '@fivexfive_history';
 
 export const DEFAULT_STATE: WorkoutState = {
   nextDay: 'A',
@@ -128,5 +143,24 @@ export async function loadWorkoutState(): Promise<WorkoutState> {
 export async function saveWorkoutState(state: WorkoutState): Promise<void> {
   try {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {}
+}
+
+export async function loadWorkoutHistory(): Promise<WorkoutLogEntry[]> {
+  try {
+    const saved = await AsyncStorage.getItem(HISTORY_STORAGE_KEY);
+    if (saved !== null) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {}
+  return [];
+}
+
+export async function appendWorkoutHistory(entry: WorkoutLogEntry): Promise<void> {
+  try {
+    const history = await loadWorkoutHistory();
+    const nextHistory = [entry, ...history];
+    await AsyncStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(nextHistory));
   } catch {}
 }

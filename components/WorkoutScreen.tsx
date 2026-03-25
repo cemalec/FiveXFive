@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import React from 'react';
 import { ActivityIndicator, Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import HistoryScreen from './HistoryScreen';
 import RepPicker from './RepPicker';
 import RestTimer from './RestTimer';
 import SettingsScreen from './SettingsScreen';
-import { loadWorkoutState, saveWorkoutState, WorkoutState, DEFAULT_STATE, formatWeight } from '../storage/workoutStore';
+import { appendWorkoutHistory, DEFAULT_STATE, formatWeight, loadWorkoutHistory, loadWorkoutState, saveWorkoutState, WorkoutLogEntry, WorkoutState } from '../storage/workoutStore';
 
 // Tracks the state of a single set
 type SetRecord = {
@@ -68,14 +69,17 @@ function ExerciseCard({ name, weight, sets, onPress, onLongPress }: ExerciseCard
 
 export default function WorkoutScreen() {
   const [workoutState, setWorkoutState] = useState<WorkoutState>(DEFAULT_STATE);
+  const [history, setHistory] = useState<WorkoutLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [day, setDay] = useState<'A' | 'B'>('A');
   const [showSettings, setShowSettings] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   // Load persisted weights and next scheduled day on first render
   useEffect(() => {
-    loadWorkoutState().then((state) => {
+    Promise.all([loadWorkoutState(), loadWorkoutHistory()]).then(([state, workoutHistory]) => {
       setWorkoutState(state);
+      setHistory(workoutHistory);
       setDay(state.nextDay);
       setLoading(false);
     });
@@ -152,8 +156,32 @@ export default function WorkoutScreen() {
       ? allMarked(squatASets) && allMarked(benchSets) && allMarked(rowSets)
       : allMarked(squatBSets) && allMarked(ohpSets)   && allMarked(deadliftSets);
 
+  function buildWorkoutLogEntry(): WorkoutLogEntry {
+    const exercises =
+      day === 'A'
+        ? [
+            { name: 'Squat', weight: workoutState.weights.squat, sets: squatASets.map((set) => set.reps) },
+            { name: 'Bench Press', weight: workoutState.weights.bench, sets: benchSets.map((set) => set.reps) },
+            { name: 'Barbell Row', weight: workoutState.weights.row, sets: rowSets.map((set) => set.reps) },
+          ]
+        : [
+            { name: 'Squat', weight: workoutState.weights.squat, sets: squatBSets.map((set) => set.reps) },
+            { name: 'Overhead Press', weight: workoutState.weights.ohp, sets: ohpSets.map((set) => set.reps) },
+            { name: 'Deadlift', weight: workoutState.weights.deadlift, sets: deadliftSets.map((set) => set.reps) },
+          ];
+
+    return {
+      id: `${Date.now()}`,
+      completedAt: new Date().toISOString(),
+      day,
+      storageUnit: workoutState.storageUnit,
+      exercises,
+    };
+  }
+
   // Increment weights (squat always; others only on full success), save, reset sets
   async function handleFinishWorkout() {
+    const historyEntry = buildWorkoutLogEntry();
     const newWeights = { ...workoutState.weights };
     if (day === 'A') {
       newWeights.squat += workoutState.increments.squat;
@@ -167,8 +195,9 @@ export default function WorkoutScreen() {
 
     const nextDay: 'A' | 'B' = day === 'A' ? 'B' : 'A';
     const newState: WorkoutState = { ...workoutState, nextDay, weights: newWeights };
-    await saveWorkoutState(newState);
+    await Promise.all([saveWorkoutState(newState), appendWorkoutHistory(historyEntry)]);
     setWorkoutState(newState);
+    setHistory((prev) => [historyEntry, ...prev]);
 
     if (day === 'A') {
       setSquatASets(emptySets(5));
@@ -202,13 +231,26 @@ export default function WorkoutScreen() {
     );
   }
 
+  if (showHistory) {
+    return (
+      <HistoryScreen
+        history={history}
+        displayUnit={workoutState.unit}
+        onClose={() => setShowHistory(false)}
+      />
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
 
       {/* Top bar: app title + settings gear */}
       <View style={styles.topBar}>
+        <TouchableOpacity onPress={() => setShowHistory(true)} style={styles.topBarAction}>
+          <Text style={styles.topBarActionText}>History</Text>
+        </TouchableOpacity>
         <Text style={styles.appTitle}>FiveXFive</Text>
-        <TouchableOpacity onPress={() => setShowSettings(true)} style={styles.gearButton}>
+        <TouchableOpacity onPress={() => setShowSettings(true)} style={styles.topBarAction}>
           <Text style={styles.gearIcon}>⚙</Text>
         </TouchableOpacity>
       </View>
@@ -407,8 +449,16 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     letterSpacing: 1,
   },
-  gearButton: {
-    padding: 4,
+  topBarAction: {
+    minWidth: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 4,
+  },
+  topBarActionText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   gearIcon: {
     fontSize: 24,

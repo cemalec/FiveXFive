@@ -5,7 +5,7 @@ import HistoryScreen from './HistoryScreen';
 import RepPicker from './RepPicker';
 import RestTimer from './RestTimer';
 import SettingsScreen from './SettingsScreen';
-import { appendWorkoutHistory, DEFAULT_STATE, formatWeight, loadWorkoutHistory, loadWorkoutState, saveWorkoutState, WorkoutLogEntry, WorkoutState } from '../storage/workoutStore';
+import { appendWorkoutHistory, calculateWarmupWeights, DEFAULT_STATE, formatNumber, formatWeight, loadWorkoutHistory, loadWorkoutState, saveWorkoutState, WorkoutLogEntry, WorkoutState } from '../storage/workoutStore';
 
 // Tracks the state of a single set
 type SetRecord = {
@@ -32,12 +32,13 @@ function emptySets(n: number): SetRecord[] {
 type ExerciseCardProps = {
   name: string;
   weight: string;
+  warmups: string[];
   sets: SetRecord[];
   onPress: (i: number) => void;
   onLongPress: (i: number) => void;
 };
 
-function ExerciseCard({ name, weight, sets, onPress, onLongPress }: ExerciseCardProps) {
+function ExerciseCard({ name, weight, warmups, sets, onPress, onLongPress }: ExerciseCardProps) {
   const setCount = sets.length;
   const repLabel = `${setCount} set${setCount > 1 ? 's' : ''} × 5 reps`;
   return (
@@ -47,6 +48,7 @@ function ExerciseCard({ name, weight, sets, onPress, onLongPress }: ExerciseCard
         <Text style={styles.weightText}>{weight}</Text>
       </View>
       <Text style={styles.exerciseDetail}>{repLabel}</Text>
+      <Text style={styles.warmupText}>Warm-up: {warmups.join(' / ')}</Text>
       <View style={styles.setRow}>
         {sets.map((set, i) => (
           <TouchableOpacity
@@ -155,6 +157,12 @@ export default function WorkoutScreen() {
     day === 'A'
       ? allMarked(squatASets) && allMarked(benchSets) && allMarked(rowSets)
       : allMarked(squatBSets) && allMarked(ohpSets)   && allMarked(deadliftSets);
+
+  function warmupLabels(exercise: 'squat' | 'bench' | 'ohp' | 'row' | 'deadlift', workingWeight: number): string[] {
+    return calculateWarmupWeights(workingWeight, exercise, workoutState, workoutState.unit).map(
+      (weight) => `${formatNumber(weight)} ${workoutState.unit === 'kg' ? 'kg' : 'lb'}`
+    );
+  }
 
   function buildWorkoutLogEntry(): WorkoutLogEntry {
     const exercises =
@@ -282,15 +290,15 @@ export default function WorkoutScreen() {
         </View>
 
         {day === 'A' && <>
-          <ExerciseCard name="Squat"       weight={formatWeight(workoutState.weights.squat, workoutState.storageUnit, workoutState.unit)} sets={squatASets} onPress={(i) => handleSetPress(i, squatASets, setSquatASets)} onLongPress={(i) => handleSetLongPress(i, squatASets, setSquatASets)} />
-          <ExerciseCard name="Bench Press" weight={formatWeight(workoutState.weights.bench, workoutState.storageUnit, workoutState.unit)} sets={benchSets}  onPress={(i) => handleSetPress(i, benchSets,  setBenchSets)}  onLongPress={(i) => handleSetLongPress(i, benchSets,  setBenchSets)} />
-          <ExerciseCard name="Barbell Row" weight={formatWeight(workoutState.weights.row,   workoutState.storageUnit, workoutState.unit)} sets={rowSets}    onPress={(i) => handleSetPress(i, rowSets,    setRowSets)}    onLongPress={(i) => handleSetLongPress(i, rowSets,    setRowSets)} />
+          <ExerciseCard name="Squat"       weight={formatWeight(workoutState.weights.squat, workoutState.storageUnit, workoutState.unit)} warmups={warmupLabels('squat', workoutState.weights.squat)} sets={squatASets} onPress={(i) => handleSetPress(i, squatASets, setSquatASets)} onLongPress={(i) => handleSetLongPress(i, squatASets, setSquatASets)} />
+          <ExerciseCard name="Bench Press" weight={formatWeight(workoutState.weights.bench, workoutState.storageUnit, workoutState.unit)} warmups={warmupLabels('bench', workoutState.weights.bench)} sets={benchSets}  onPress={(i) => handleSetPress(i, benchSets,  setBenchSets)}  onLongPress={(i) => handleSetLongPress(i, benchSets,  setBenchSets)} />
+          <ExerciseCard name="Barbell Row" weight={formatWeight(workoutState.weights.row,   workoutState.storageUnit, workoutState.unit)} warmups={warmupLabels('row', workoutState.weights.row)} sets={rowSets}    onPress={(i) => handleSetPress(i, rowSets,    setRowSets)}    onLongPress={(i) => handleSetLongPress(i, rowSets,    setRowSets)} />
         </>}
 
         {day === 'B' && <>
-          <ExerciseCard name="Squat"          weight={formatWeight(workoutState.weights.squat,    workoutState.storageUnit, workoutState.unit)} sets={squatBSets}   onPress={(i) => handleSetPress(i, squatBSets,   setSquatBSets)}   onLongPress={(i) => handleSetLongPress(i, squatBSets,   setSquatBSets)} />
-          <ExerciseCard name="Overhead Press" weight={formatWeight(workoutState.weights.ohp,      workoutState.storageUnit, workoutState.unit)} sets={ohpSets}      onPress={(i) => handleSetPress(i, ohpSets,      setOhpSets)}      onLongPress={(i) => handleSetLongPress(i, ohpSets,      setOhpSets)} />
-          <ExerciseCard name="Deadlift"       weight={formatWeight(workoutState.weights.deadlift, workoutState.storageUnit, workoutState.unit)} sets={deadliftSets} onPress={(i) => handleSetPress(i, deadliftSets, setDeadliftSets)} onLongPress={(i) => handleSetLongPress(i, deadliftSets, setDeadliftSets)} />
+          <ExerciseCard name="Squat"          weight={formatWeight(workoutState.weights.squat,    workoutState.storageUnit, workoutState.unit)} warmups={warmupLabels('squat', workoutState.weights.squat)} sets={squatBSets}   onPress={(i) => handleSetPress(i, squatBSets,   setSquatBSets)}   onLongPress={(i) => handleSetLongPress(i, squatBSets,   setSquatBSets)} />
+          <ExerciseCard name="Overhead Press" weight={formatWeight(workoutState.weights.ohp,      workoutState.storageUnit, workoutState.unit)} warmups={warmupLabels('ohp', workoutState.weights.ohp)} sets={ohpSets}      onPress={(i) => handleSetPress(i, ohpSets,      setOhpSets)}      onLongPress={(i) => handleSetLongPress(i, ohpSets,      setOhpSets)} />
+          <ExerciseCard name="Deadlift"       weight={formatWeight(workoutState.weights.deadlift, workoutState.storageUnit, workoutState.unit)} warmups={warmupLabels('deadlift', workoutState.weights.deadlift)} sets={deadliftSets} onPress={(i) => handleSetPress(i, deadliftSets, setDeadliftSets)} onLongPress={(i) => handleSetLongPress(i, deadliftSets, setDeadliftSets)} />
         </>}
 
         {/* Rest timer */}
@@ -379,7 +387,12 @@ const styles = StyleSheet.create({
   exerciseDetail: {
     fontSize: 13,
     color: '#888888',
-    marginBottom: 4,
+    marginBottom: 2,
+  },
+  warmupText: {
+    fontSize: 12,
+    color: '#666666',
+    marginBottom: 6,
   },
   setRow: {
     flexDirection: 'row',

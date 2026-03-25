@@ -10,6 +10,9 @@ import {
   View,
 } from 'react-native';
 import {
+  defaultWarmupPercentages,
+  formatNumber,
+  roundToTwoDecimals,
   WorkoutState,
   ExerciseKey,
   Unit,
@@ -37,29 +40,30 @@ const EXERCISES: { key: ExerciseKey; label: string }[] = [
 export default function SettingsScreen({ workoutState, onSave, onToggleUnit, onClose }: Props) {
   const unitLabel = workoutState.unit === 'lbs' ? 'lb' : 'kg';
   const [showIncrementSettings, setShowIncrementSettings] = useState(false);
+  const [showWarmupSettings, setShowWarmupSettings] = useState(false);
   const displayStandardIncrements = standardIncrementsForUnit(workoutState.unit);
 
   // Convert a stored value into the current display unit for showing in inputs
   function toDisplay(value: number): string {
-    if (workoutState.storageUnit === workoutState.unit) return String(value);
+    if (workoutState.storageUnit === workoutState.unit) return formatNumber(value);
     if (workoutState.storageUnit === 'lbs' && workoutState.unit === 'kg') {
-      return String(Math.round(value * 0.453592 * 100) / 100);
+      return formatNumber(value * 0.453592);
     }
-    return String(Math.round(value * 2.20462 * 100) / 100);
+    return formatNumber(value * 2.20462);
   }
 
   function toDisplayIncrement(key: ExerciseKey, value: number): string {
     const converted = Number(toDisplay(value));
     const step = displayStandardIncrements[key];
     const rounded = Math.max(step, Math.round(converted / step) * step);
-    return String(rounded);
+    return formatNumber(rounded);
   }
 
   // Convert a display-unit value back to storageUnit before saving
   function fromDisplay(value: number): number {
-    if (workoutState.storageUnit === workoutState.unit) return value;
-    if (workoutState.unit === 'kg' && workoutState.storageUnit === 'lbs') return value / 0.453592;
-    return value / 2.20462;
+    if (workoutState.storageUnit === workoutState.unit) return roundToTwoDecimals(value);
+    if (workoutState.unit === 'kg' && workoutState.storageUnit === 'lbs') return roundToTwoDecimals(value / 0.453592);
+    return roundToTwoDecimals(value / 2.20462);
   }
 
   // Editable copies as strings (TextInput requires strings)
@@ -72,6 +76,9 @@ export default function SettingsScreen({ workoutState, onSave, onToggleUnit, onC
     Object.fromEntries(
       EXERCISES.map(({ key }) => [key, toDisplayIncrement(key, workoutState.increments[key])])
     ) as Record<ExerciseKey, string>
+  );
+  const [warmupPercentagesText, setWarmupPercentagesText] = useState(
+    workoutState.customWarmupPercentages.join(', ')
   );
 
   // Re-sync input values whenever the display unit or stored values change
@@ -86,7 +93,8 @@ export default function SettingsScreen({ workoutState, onSave, onToggleUnit, onC
         EXERCISES.map(({ key }) => [key, toDisplayIncrement(key, workoutState.increments[key])])
       ) as Record<ExerciseKey, string>
     );
-  }, [workoutState.unit, workoutState.storageUnit, workoutState.weights, workoutState.increments]);
+    setWarmupPercentagesText(workoutState.customWarmupPercentages.join(', '));
+  }, [workoutState.unit, workoutState.storageUnit, workoutState.weights, workoutState.increments, workoutState.customWarmupPercentages]);
 
   function handleSave() {
     const draftState = buildDraftState();
@@ -99,6 +107,16 @@ export default function SettingsScreen({ workoutState, onSave, onToggleUnit, onC
   function buildDraftState(): WorkoutState | null {
     const parsedWeights = {} as Record<ExerciseKey, number>;
     const parsedIncrements = {} as Record<ExerciseKey, number>;
+    const parsedWarmupPercentages = warmupPercentagesText
+      .split(',')
+      .map((value) => parseFloat(value.trim()))
+      .filter((value) => !isNaN(value));
+
+    if (parsedWarmupPercentages.length === 0 || parsedWarmupPercentages.some((value) => value <= 0 || value >= 100)) {
+      Alert.alert('Invalid warmups', 'Warmup percentages must be comma-separated numbers between 0 and 100.');
+      return null;
+    }
+
     for (const { key } of EXERCISES) {
       const w = parseFloat(weights[key]);
       const inc = parseFloat(increments[key]);
@@ -109,7 +127,28 @@ export default function SettingsScreen({ workoutState, onSave, onToggleUnit, onC
       parsedWeights[key] = fromDisplay(w);
       parsedIncrements[key] = fromDisplay(inc);
     }
-    return { ...workoutState, weights: parsedWeights, increments: parsedIncrements };
+    return {
+      ...workoutState,
+      weights: parsedWeights,
+      increments: parsedIncrements,
+      customWarmupPercentages: parsedWarmupPercentages,
+    };
+  }
+
+  async function handleWarmupModeChange(mode: WorkoutState['warmupMode']) {
+    const draftState = buildDraftState();
+    if (!draftState) return;
+    const newState: WorkoutState = { ...draftState, warmupMode: mode };
+    await saveWorkoutState(newState);
+    onSave(newState);
+  }
+
+  async function handleResetWarmupPercentages() {
+    const defaults = defaultWarmupPercentages();
+    setWarmupPercentagesText(defaults.join(', '));
+    const newState: WorkoutState = { ...workoutState, customWarmupPercentages: defaults };
+    await saveWorkoutState(newState);
+    onSave(newState);
   }
 
   async function handleRound(targetUnit: Unit) {
@@ -207,6 +246,47 @@ export default function SettingsScreen({ workoutState, onSave, onToggleUnit, onC
     );
   }
 
+  if (showWarmupSettings) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => setShowWarmupSettings(false)} style={styles.headerSide}>
+            <Text style={styles.backArrow}>‹</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Warmups</Text>
+          <View style={styles.headerSide} />
+        </View>
+
+        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+          <Text style={styles.sectionHeader}>Warmup Percentages</Text>
+          <View style={styles.card}>
+            <Text style={styles.convertNote}>
+              Enter comma-separated percentages for the percentage warmup mode. Example: 45, 65, 85
+            </Text>
+            <View style={styles.singleInputSection}>
+              <TextInput
+                style={styles.fullWidthInput}
+                value={warmupPercentagesText}
+                onChangeText={setWarmupPercentagesText}
+                autoCapitalize="none"
+                autoCorrect={false}
+                selectTextOnFocus
+              />
+            </View>
+          </View>
+
+          <TouchableOpacity style={styles.secondaryButton} onPress={handleResetWarmupPercentages}>
+            <Text style={styles.secondaryButtonText}>Reset To 45, 65, 85</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Save Changes</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
 
@@ -241,6 +321,32 @@ export default function SettingsScreen({ workoutState, onSave, onToggleUnit, onC
               </View>
             </View>
           ))}
+        </View>
+
+        <Text style={styles.sectionHeader}>Warmups</Text>
+        <View style={styles.card}>
+          <Text style={styles.convertNote}>
+            Choose between empty bar plus 3 even steps, or empty bar plus percentage-based warmups.
+          </Text>
+          <TouchableOpacity
+            style={[styles.roundButton, workoutState.warmupMode === 'interpolate' && styles.selectedActionButton]}
+            onPress={() => handleWarmupModeChange('interpolate')}
+          >
+            <Text style={[styles.roundButtonText, workoutState.warmupMode === 'interpolate' && styles.selectedActionButtonText]}>
+              Empty Bar + 3 Even Steps
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.roundButton, workoutState.warmupMode === 'percentages' && styles.selectedActionButton, styles.roundButtonLast]}
+            onPress={() => handleWarmupModeChange('percentages')}
+          >
+            <Text style={[styles.roundButtonText, workoutState.warmupMode === 'percentages' && styles.selectedActionButtonText]}>
+              Empty Bar + {workoutState.customWarmupPercentages.join(' / ')}%
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.secondaryButton} onPress={() => setShowWarmupSettings(true)}>
+            <Text style={styles.secondaryButtonText}>Advanced Warmup Settings</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Increments */}
@@ -435,6 +541,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
+  singleInputSection: {
+    paddingVertical: 14,
+  },
+  fullWidthInput: {
+    borderWidth: 1,
+    borderColor: '#C8C8C8',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 16,
+    color: '#1A1A2E',
+  },
   roundButton: {
     backgroundColor: '#F3F8FE',
     borderWidth: 1,
@@ -453,6 +571,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     textAlign: 'center',
+  },
+  selectedActionButton: {
+    backgroundColor: '#4A90D9',
+  },
+  selectedActionButtonText: {
+    color: '#FFFFFF',
   },
   convertNote: {
     fontSize: 13,

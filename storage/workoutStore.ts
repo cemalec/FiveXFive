@@ -4,12 +4,16 @@ export type ExerciseKey = 'squat' | 'bench' | 'ohp' | 'row' | 'deadlift';
 
 export type Unit = 'lbs' | 'kg';
 
+export type WarmupMode = 'interpolate' | 'percentages';
+
 export type WorkoutState = {
   nextDay: 'A' | 'B';
   unit: Unit;        // display unit (what the user currently sees)
   storageUnit: Unit; // unit the numbers in weights/increments are expressed in
   weights: Record<ExerciseKey, number>;
   increments: Record<ExerciseKey, number>;
+  warmupMode: WarmupMode;
+  customWarmupPercentages: number[];
 };
 
 export type WorkoutExerciseLog = {
@@ -26,10 +30,24 @@ export type WorkoutLogEntry = {
   exercises: WorkoutExerciseLog[];
 };
 
+export function roundToTwoDecimals(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+export function formatNumber(value: number): string {
+  const rounded = roundToTwoDecimals(value);
+  if (Number.isInteger(rounded)) return String(rounded);
+  return rounded.toFixed(2).replace(/\.?0+$/, '');
+}
+
 function convertUnitValue(value: number, fromUnit: Unit, toUnit: Unit): number {
   if (fromUnit === toUnit) return value;
-  if (fromUnit === 'lbs' && toUnit === 'kg') return value * 0.453592;
-  return value * 2.20462;
+  if (fromUnit === 'lbs' && toUnit === 'kg') return roundToTwoDecimals(value * 0.453592);
+  return roundToTwoDecimals(value * 2.20462);
+}
+
+export function convertValue(value: number, fromUnit: Unit, toUnit: Unit): number {
+  return convertUnitValue(value, fromUnit, toUnit);
 }
 
 function standardIncrement(exercise: ExerciseKey, unit: Unit): number {
@@ -47,18 +65,54 @@ export function standardIncrementsForUnit(unit: Unit): Record<ExerciseKey, numbe
   };
 }
 
+export function defaultWarmupPercentages(): number[] {
+  return [45, 65, 85];
+}
+
+export function barWeightForUnit(unit: Unit): number {
+  return unit === 'kg' ? 20 : 45;
+}
+
+function roundToStep(value: number, step: number): number {
+  return roundToTwoDecimals(Math.round(value / step) * step);
+}
+
+export function calculateWarmupWeights(
+  workingWeight: number,
+  exercise: ExerciseKey,
+  state: WorkoutState,
+  displayUnit: Unit
+): number[] {
+  const displayWeight = convertUnitValue(workingWeight, state.storageUnit, displayUnit);
+  const barWeight = barWeightForUnit(displayUnit);
+  const step = standardIncrementsForUnit(displayUnit)[exercise];
+
+  if (displayWeight <= barWeight) return [barWeight];
+
+  const rawWarmups =
+    state.warmupMode === 'interpolate'
+      ? [0.25, 0.5, 0.75].map((fraction) => barWeight + (displayWeight - barWeight) * fraction)
+      : state.customWarmupPercentages.map((percent) => (displayWeight * percent) / 100);
+
+  const roundedWarmups = rawWarmups
+    .map((value) => roundToStep(value, step))
+    .filter((value) => value > barWeight && value < displayWeight);
+
+  return [barWeight, ...Array.from(new Set(roundedWarmups))];
+}
+
 // Convert a stored value from storageUnit to displayUnit for rendering
 export function formatWeight(value: number, storageUnit: Unit, displayUnit: Unit): string {
   if (storageUnit === displayUnit) {
-    return `${value} ${displayUnit === 'lbs' ? 'lb' : 'kg'}`;
+    return `${formatNumber(value)} ${displayUnit === 'lbs' ? 'lb' : 'kg'}`;
   }
   if (storageUnit === 'lbs' && displayUnit === 'kg') {
-    const kg = value * 0.453592;
-    const rounded = Math.round(kg * 2) / 2; // nearest 0.5 kg
-    return `${rounded} kg`;
+    const kg = roundToTwoDecimals(value * 0.453592);
+    const rounded = roundToTwoDecimals(Math.round(kg * 2) / 2); // nearest 0.5 kg
+    return `${formatNumber(rounded)} kg`;
   }
   // storageUnit === 'kg', displayUnit === 'lbs'
-  return `${Math.round(value * 2.20462)} lb`;
+  return `${formatNumber(Math.round(value * 2.20462))} lb`;
 }
 
 // Permanently round all stored weights to clean plate increments in targetUnit.
@@ -68,9 +122,9 @@ export function convertAllWeights(state: WorkoutState, targetUnit: Unit): Workou
   const newWeights = {} as Record<ExerciseKey, number>;
   for (const key of Object.keys(state.weights) as ExerciseKey[]) {
     if (targetUnit === 'kg') {
-      newWeights[key] = Math.round(state.weights[key] * 0.453592 / 2.5) * 2.5;
+      newWeights[key] = roundToTwoDecimals(Math.round(state.weights[key] * 0.453592 / 2.5) * 2.5);
     } else {
-      newWeights[key] = Math.round(state.weights[key] * 2.20462 / 5) * 5;
+      newWeights[key] = roundToTwoDecimals(Math.round(state.weights[key] * 2.20462 / 5) * 5);
     }
   }
   const newIncrements = standardIncrementsForUnit(targetUnit);
@@ -89,8 +143,8 @@ export function roundAllToUnit(state: WorkoutState, targetUnit: Unit): WorkoutSt
     const roundedWeightInTarget = Math.round(weightInTarget / targetStep) * targetStep;
     const roundedIncrementInTarget = Math.max(targetStep, Math.round(incrementInTarget / targetStep) * targetStep);
 
-    roundedWeights[key] = convertUnitValue(roundedWeightInTarget, targetUnit, state.storageUnit);
-    roundedIncrements[key] = convertUnitValue(roundedIncrementInTarget, targetUnit, state.storageUnit);
+    roundedWeights[key] = roundToTwoDecimals(convertUnitValue(roundedWeightInTarget, targetUnit, state.storageUnit));
+    roundedIncrements[key] = roundToTwoDecimals(convertUnitValue(roundedIncrementInTarget, targetUnit, state.storageUnit));
   }
 
   return {
@@ -121,6 +175,8 @@ export const DEFAULT_STATE: WorkoutState = {
     row: 5,
     deadlift: 10,
   },
+  warmupMode: 'interpolate',
+  customWarmupPercentages: defaultWarmupPercentages(),
 };
 
 // Load from storage, falling back to defaults for any missing fields

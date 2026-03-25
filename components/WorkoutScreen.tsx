@@ -3,7 +3,7 @@ import React from 'react';
 import { ActivityIndicator, Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import RepPicker from './RepPicker';
 import RestTimer from './RestTimer';
-import { loadWorkoutState, saveWorkoutState, WorkoutState, DEFAULT_STATE } from '../storage/workoutStore';
+import { loadWorkoutState, saveWorkoutState, WorkoutState, DEFAULT_STATE, formatWeight } from '../storage/workoutStore';
 
 // Tracks the state of a single set
 type SetRecord = {
@@ -91,6 +91,14 @@ export default function WorkoutScreen() {
 
   const [startSignal, setStartSignal] = useState(0);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
+
+  // Toggle unit and persist
+  async function handleUnitToggle() {
+    const newUnit = workoutState.unit === 'lbs' ? 'kg' : 'lbs';
+    const newState = { ...workoutState, unit: newUnit } as WorkoutState;
+    setWorkoutState(newState);
+    await saveWorkoutState(newState);
+  }
 
   // Normal tap: mark complete at 5 reps, or clear if already marked
   function handleSetPress(
@@ -199,18 +207,21 @@ export default function WorkoutScreen() {
           >
             <Text style={[styles.dayTabText, day === 'B' && styles.dayTabTextActive]}>Day B</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.unitToggle} onPress={handleUnitToggle}>
+            <Text style={styles.unitToggleText}>{workoutState.unit === 'lbs' ? 'lbs' : 'kg'}</Text>
+          </TouchableOpacity>
         </View>
 
         {day === 'A' && <>
-          <ExerciseCard name="Squat"       weight={`${workoutState.weights.squat} lb`} sets={squatASets} onPress={(i) => handleSetPress(i, squatASets, setSquatASets)} onLongPress={(i) => handleSetLongPress(i, squatASets, setSquatASets)} />
-          <ExerciseCard name="Bench Press" weight={`${workoutState.weights.bench} lb`} sets={benchSets}  onPress={(i) => handleSetPress(i, benchSets,  setBenchSets)}  onLongPress={(i) => handleSetLongPress(i, benchSets,  setBenchSets)} />
-          <ExerciseCard name="Barbell Row" weight={`${workoutState.weights.row} lb`}   sets={rowSets}    onPress={(i) => handleSetPress(i, rowSets,    setRowSets)}    onLongPress={(i) => handleSetLongPress(i, rowSets,    setRowSets)} />
+          <ExerciseCard name="Squat"       weight={formatWeight(workoutState.weights.squat, workoutState.unit)} sets={squatASets} onPress={(i) => handleSetPress(i, squatASets, setSquatASets)} onLongPress={(i) => handleSetLongPress(i, squatASets, setSquatASets)} />
+          <ExerciseCard name="Bench Press" weight={formatWeight(workoutState.weights.bench, workoutState.unit)} sets={benchSets}  onPress={(i) => handleSetPress(i, benchSets,  setBenchSets)}  onLongPress={(i) => handleSetLongPress(i, benchSets,  setBenchSets)} />
+          <ExerciseCard name="Barbell Row" weight={formatWeight(workoutState.weights.row,   workoutState.unit)} sets={rowSets}    onPress={(i) => handleSetPress(i, rowSets,    setRowSets)}    onLongPress={(i) => handleSetLongPress(i, rowSets,    setRowSets)} />
         </>}
 
         {day === 'B' && <>
-          <ExerciseCard name="Squat"          weight={`${workoutState.weights.squat} lb`}    sets={squatBSets}   onPress={(i) => handleSetPress(i, squatBSets,   setSquatBSets)}   onLongPress={(i) => handleSetLongPress(i, squatBSets,   setSquatBSets)} />
-          <ExerciseCard name="Overhead Press" weight={`${workoutState.weights.ohp} lb`}      sets={ohpSets}      onPress={(i) => handleSetPress(i, ohpSets,      setOhpSets)}      onLongPress={(i) => handleSetLongPress(i, ohpSets,      setOhpSets)} />
-          <ExerciseCard name="Deadlift"       weight={`${workoutState.weights.deadlift} lb`} sets={deadliftSets} onPress={(i) => handleSetPress(i, deadliftSets, setDeadliftSets)} onLongPress={(i) => handleSetLongPress(i, deadliftSets, setDeadliftSets)} />
+          <ExerciseCard name="Squat"          weight={formatWeight(workoutState.weights.squat,    workoutState.unit)} sets={squatBSets}   onPress={(i) => handleSetPress(i, squatBSets,   setSquatBSets)}   onLongPress={(i) => handleSetLongPress(i, squatBSets,   setSquatBSets)} />
+          <ExerciseCard name="Overhead Press" weight={formatWeight(workoutState.weights.ohp,      workoutState.unit)} sets={ohpSets}      onPress={(i) => handleSetPress(i, ohpSets,      setOhpSets)}      onLongPress={(i) => handleSetLongPress(i, ohpSets,      setOhpSets)} />
+          <ExerciseCard name="Deadlift"       weight={formatWeight(workoutState.weights.deadlift, workoutState.unit)} sets={deadliftSets} onPress={(i) => handleSetPress(i, deadliftSets, setDeadliftSets)} onLongPress={(i) => handleSetLongPress(i, deadliftSets, setDeadliftSets)} />
         </>}
 
         {/* Rest timer */}
@@ -345,5 +356,19 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 20,
     fontWeight: '800',
+  },
+  unitToggle: {
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#1A1A2E',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  unitToggleText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1A1A2E',
   },
 });

@@ -2,16 +2,31 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export type ExerciseKey = 'squat' | 'bench' | 'ohp' | 'row' | 'deadlift';
 
+export type Unit = 'lbs' | 'kg';
+
 export type WorkoutState = {
   nextDay: 'A' | 'B';
+  unit: Unit;
   weights: Record<ExerciseKey, number>;    // always stored in lbs
   increments: Record<ExerciseKey, number>; // always stored in lbs
 };
+
+// Display a weight stored in lbs, rounded to a sensible plate increment
+export function formatWeight(lbs: number, unit: Unit): string {
+  if (unit === 'kg') {
+    const kg = lbs * 0.453592;
+    // Round to nearest 0.5 kg (smallest standard plate pair)
+    const rounded = Math.round(kg * 2) / 2;
+    return `${rounded} kg`;
+  }
+  return `${lbs} lb`;
+}
 
 const STORAGE_KEY = '@fivexfive_workout';
 
 export const DEFAULT_STATE: WorkoutState = {
   nextDay: 'A',
+  unit: 'lbs',
   weights: {
     squat: 45,
     bench: 45,

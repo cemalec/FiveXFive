@@ -58,15 +58,15 @@ export default function RestTimer({ startSignal = 0 }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Rest Timer</Text>
+      <Text style={styles.label}>Rest</Text>
       <Text style={styles.timerText}>{display}</Text>
       <TouchableOpacity
         style={[styles.button, isRunning && styles.buttonRunning]}
         onPress={handlePress}
-        accessibilityLabel={isRunning ? 'Reset timer' : 'Start timer'}
+        accessibilityLabel={isRunning ? 'Skip rest' : 'Start rest timer'}
         accessibilityRole="button"
       >
-        <Text style={styles.buttonText}>{isRunning ? 'Reset' : 'Start'}</Text>
+        <Text style={styles.buttonText}>{isRunning ? 'Skip' : 'Start'}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -74,29 +74,35 @@ export default function RestTimer({ startSignal = 0 }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   label: {
-    fontSize: 20,
+    fontSize: 16,
     color: '#555555',
     fontWeight: '600',
-    marginBottom: 16,
   },
   timerText: {
-    fontSize: 80,
+    fontSize: 36,
     fontWeight: 'bold',
     color: '#1A1A2E',
-    fontVariant: ['tabular-nums'], // keeps digits fixed-width so they don't jump around
-    marginBottom: 48,
+    fontVariant: ['tabular-nums'],
   },
   button: {
-    paddingVertical: 16,
-    paddingHorizontal: 56,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
     backgroundColor: '#4A90D9',
-    borderRadius: 12,
+    borderRadius: 8,
   },
   buttonRunning: {
     backgroundColor: '#C0392B', // red when running, to signal "this will cancel"

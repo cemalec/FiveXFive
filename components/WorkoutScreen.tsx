@@ -3,6 +3,7 @@ import React from 'react';
 import { ActivityIndicator, Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import RepPicker from './RepPicker';
 import RestTimer from './RestTimer';
+import SettingsScreen from './SettingsScreen';
 import { loadWorkoutState, saveWorkoutState, WorkoutState, DEFAULT_STATE, formatWeight } from '../storage/workoutStore';
 
 // Tracks the state of a single set
@@ -69,6 +70,7 @@ export default function WorkoutScreen() {
   const [workoutState, setWorkoutState] = useState<WorkoutState>(DEFAULT_STATE);
   const [loading, setLoading] = useState(true);
   const [day, setDay] = useState<'A' | 'B'>('A');
+  const [showSettings, setShowSettings] = useState(false);
 
   // Load persisted weights and next scheduled day on first render
   useEffect(() => {
@@ -189,8 +191,28 @@ export default function WorkoutScreen() {
     );
   }
 
+  if (showSettings) {
+    return (
+      <SettingsScreen
+        workoutState={workoutState}
+        onSave={(newState) => setWorkoutState(newState)}
+        onToggleUnit={handleUnitToggle}
+        onClose={() => setShowSettings(false)}
+      />
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
+
+      {/* Top bar: app title + settings gear */}
+      <View style={styles.topBar}>
+        <Text style={styles.appTitle}>FiveXFive</Text>
+        <TouchableOpacity onPress={() => setShowSettings(true)} style={styles.gearButton}>
+          <Text style={styles.gearIcon}>⚙</Text>
+        </TouchableOpacity>
+      </View>
+
       <ScrollView contentContainerStyle={styles.scroll}>
 
         {/* Day toggle header */}
@@ -208,20 +230,20 @@ export default function WorkoutScreen() {
             <Text style={[styles.dayTabText, day === 'B' && styles.dayTabTextActive]}>Day B</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.unitToggle} onPress={handleUnitToggle}>
-            <Text style={styles.unitToggleText}>{workoutState.unit === 'lbs' ? 'lbs' : 'kg'}</Text>
+            <Text style={styles.unitToggleText}>{workoutState.unit === 'lbs' ? 'kg' : 'lbs'}</Text>
           </TouchableOpacity>
         </View>
 
         {day === 'A' && <>
-          <ExerciseCard name="Squat"       weight={formatWeight(workoutState.weights.squat, workoutState.unit)} sets={squatASets} onPress={(i) => handleSetPress(i, squatASets, setSquatASets)} onLongPress={(i) => handleSetLongPress(i, squatASets, setSquatASets)} />
-          <ExerciseCard name="Bench Press" weight={formatWeight(workoutState.weights.bench, workoutState.unit)} sets={benchSets}  onPress={(i) => handleSetPress(i, benchSets,  setBenchSets)}  onLongPress={(i) => handleSetLongPress(i, benchSets,  setBenchSets)} />
-          <ExerciseCard name="Barbell Row" weight={formatWeight(workoutState.weights.row,   workoutState.unit)} sets={rowSets}    onPress={(i) => handleSetPress(i, rowSets,    setRowSets)}    onLongPress={(i) => handleSetLongPress(i, rowSets,    setRowSets)} />
+          <ExerciseCard name="Squat"       weight={formatWeight(workoutState.weights.squat, workoutState.storageUnit, workoutState.unit)} sets={squatASets} onPress={(i) => handleSetPress(i, squatASets, setSquatASets)} onLongPress={(i) => handleSetLongPress(i, squatASets, setSquatASets)} />
+          <ExerciseCard name="Bench Press" weight={formatWeight(workoutState.weights.bench, workoutState.storageUnit, workoutState.unit)} sets={benchSets}  onPress={(i) => handleSetPress(i, benchSets,  setBenchSets)}  onLongPress={(i) => handleSetLongPress(i, benchSets,  setBenchSets)} />
+          <ExerciseCard name="Barbell Row" weight={formatWeight(workoutState.weights.row,   workoutState.storageUnit, workoutState.unit)} sets={rowSets}    onPress={(i) => handleSetPress(i, rowSets,    setRowSets)}    onLongPress={(i) => handleSetLongPress(i, rowSets,    setRowSets)} />
         </>}
 
         {day === 'B' && <>
-          <ExerciseCard name="Squat"          weight={formatWeight(workoutState.weights.squat,    workoutState.unit)} sets={squatBSets}   onPress={(i) => handleSetPress(i, squatBSets,   setSquatBSets)}   onLongPress={(i) => handleSetLongPress(i, squatBSets,   setSquatBSets)} />
-          <ExerciseCard name="Overhead Press" weight={formatWeight(workoutState.weights.ohp,      workoutState.unit)} sets={ohpSets}      onPress={(i) => handleSetPress(i, ohpSets,      setOhpSets)}      onLongPress={(i) => handleSetLongPress(i, ohpSets,      setOhpSets)} />
-          <ExerciseCard name="Deadlift"       weight={formatWeight(workoutState.weights.deadlift, workoutState.unit)} sets={deadliftSets} onPress={(i) => handleSetPress(i, deadliftSets, setDeadliftSets)} onLongPress={(i) => handleSetLongPress(i, deadliftSets, setDeadliftSets)} />
+          <ExerciseCard name="Squat"          weight={formatWeight(workoutState.weights.squat,    workoutState.storageUnit, workoutState.unit)} sets={squatBSets}   onPress={(i) => handleSetPress(i, squatBSets,   setSquatBSets)}   onLongPress={(i) => handleSetLongPress(i, squatBSets,   setSquatBSets)} />
+          <ExerciseCard name="Overhead Press" weight={formatWeight(workoutState.weights.ohp,      workoutState.storageUnit, workoutState.unit)} sets={ohpSets}      onPress={(i) => handleSetPress(i, ohpSets,      setOhpSets)}      onLongPress={(i) => handleSetLongPress(i, ohpSets,      setOhpSets)} />
+          <ExerciseCard name="Deadlift"       weight={formatWeight(workoutState.weights.deadlift, workoutState.storageUnit, workoutState.unit)} sets={deadliftSets} onPress={(i) => handleSetPress(i, deadliftSets, setDeadliftSets)} onLongPress={(i) => handleSetLongPress(i, deadliftSets, setDeadliftSets)} />
         </>}
 
         {/* Rest timer */}
@@ -370,5 +392,26 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     color: '#1A1A2E',
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#1A1A2E',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+  },
+  appTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 1,
+  },
+  gearButton: {
+    padding: 4,
+  },
+  gearIcon: {
+    fontSize: 24,
+    color: '#FFFFFF',
   },
 });

@@ -1,32 +1,82 @@
 import { useState } from 'react';
 import React from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import RepPicker from './RepPicker';
 import RestTimer from './RestTimer';
 
 const SETS = 5;
 
-export default function WorkoutScreen() {
-  const [squatSets, setSquatSets] = useState<boolean[]>(Array(SETS).fill(false));
-  const [benchSets, setBenchSets] = useState<boolean[]>(Array(SETS).fill(false));
-  const [rowSets, setRowSets] = useState<boolean[]>(Array(SETS).fill(false));
-  const [startSignal, setStartSignal] = useState(0);
+// Tracks the state of a single set
+type SetRecord = {
+  done: boolean;    // completed at target (5) or above
+  failed: boolean;  // completed below target
+  reps: number;     // actual reps completed
+};
 
+// Points back to whichever set triggered the rep picker
+type PickerTarget = {
+  index: number;
+  sets: SetRecord[];
+  setSets: React.Dispatch<React.SetStateAction<SetRecord[]>>;
+};
+
+function emptySet(): SetRecord {
+  return { done: false, failed: false, reps: 0 };
+}
+
+export default function WorkoutScreen() {
+  const [squatSets, setSquatSets] = useState<SetRecord[]>(Array.from({ length: SETS }, emptySet));
+  const [benchSets, setBenchSets] = useState<SetRecord[]>(Array.from({ length: SETS }, emptySet));
+  const [rowSets, setRowSets] = useState<SetRecord[]>(Array.from({ length: SETS }, emptySet));
+  const [startSignal, setStartSignal] = useState(0);
+  const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
+
+  // Normal tap: mark complete at 5 reps, or clear if already marked
   function handleSetPress(
     index: number,
-    sets: boolean[],
-    setSets: React.Dispatch<React.SetStateAction<boolean[]>>
+    sets: SetRecord[],
+    setSets: React.Dispatch<React.SetStateAction<SetRecord[]>>
   ) {
-    const alreadyChecked = sets[index];
+    const current = sets[index];
+    const alreadyMarked = current.done || current.failed;
 
     setSets((prev) => {
       const next = [...prev];
-      next[index] = !next[index];
+      next[index] = alreadyMarked ? emptySet() : { done: true, failed: false, reps: 5 };
       return next;
     });
 
-    if (!alreadyChecked) {
+    if (!alreadyMarked) {
       setStartSignal((prev) => prev + 1);
     }
+  }
+
+  // Long press: open the rep picker so the user can record exact reps
+  function handleSetLongPress(
+    index: number,
+    sets: SetRecord[],
+    setSets: React.Dispatch<React.SetStateAction<SetRecord[]>>
+  ) {
+    const current = sets[index];
+    if (current.done || current.failed) return; // already marked, ignore
+    setPickerTarget({ index, sets, setSets });
+  }
+
+  // Called when the user confirms a rep count from the picker
+  function handlePickerConfirm(reps: number) {
+    if (!pickerTarget) return;
+    const { index, setSets } = pickerTarget;
+    setSets((prev) => {
+      const next = [...prev];
+      next[index] = {
+        done: reps >= 5,
+        failed: reps < 5,
+        reps,
+      };
+      return next;
+    });
+    setStartSignal((prev) => prev + 1);
+    setPickerTarget(null);
   }
 
   return (
@@ -45,15 +95,17 @@ export default function WorkoutScreen() {
           <Text style={styles.exerciseDetail}>5 sets × 5 reps</Text>
 
           <View style={styles.setRow}>
-            {squatSets.map((checked, i) => (
+            {squatSets.map((set, i) => (
               <TouchableOpacity
                 key={i}
-                style={[styles.checkbox, checked && styles.checkboxChecked]}
+                style={[styles.checkbox, set.done && styles.checkboxDone, set.failed && styles.checkboxFailed]}
                 onPress={() => handleSetPress(i, squatSets, setSquatSets)}
-                accessibilityLabel={`Squat set ${i + 1}, ${checked ? 'completed' : 'not completed'}`}
+                onLongPress={() => handleSetLongPress(i, squatSets, setSquatSets)}
+                accessibilityLabel={`Squat set ${i + 1}`}
                 accessibilityRole="checkbox"
               >
-                {checked && <Text style={styles.checkmark}>✓</Text>}
+                {set.done && <Text style={styles.checkmark}>✓</Text>}
+                {set.failed && <Text style={styles.failReps}>{set.reps}</Text>}
               </TouchableOpacity>
             ))}
           </View>
@@ -67,15 +119,17 @@ export default function WorkoutScreen() {
           </View>
           <Text style={styles.exerciseDetail}>5 sets × 5 reps</Text>
           <View style={styles.setRow}>
-            {benchSets.map((checked, i) => (
+            {benchSets.map((set, i) => (
               <TouchableOpacity
                 key={i}
-                style={[styles.checkbox, checked && styles.checkboxChecked]}
+                style={[styles.checkbox, set.done && styles.checkboxDone, set.failed && styles.checkboxFailed]}
                 onPress={() => handleSetPress(i, benchSets, setBenchSets)}
-                accessibilityLabel={`Bench Press set ${i + 1}, ${checked ? 'completed' : 'not completed'}`}
+                onLongPress={() => handleSetLongPress(i, benchSets, setBenchSets)}
+                accessibilityLabel={`Bench Press set ${i + 1}`}
                 accessibilityRole="checkbox"
               >
-                {checked && <Text style={styles.checkmark}>✓</Text>}
+                {set.done && <Text style={styles.checkmark}>✓</Text>}
+                {set.failed && <Text style={styles.failReps}>{set.reps}</Text>}
               </TouchableOpacity>
             ))}
           </View>
@@ -89,15 +143,17 @@ export default function WorkoutScreen() {
           </View>
           <Text style={styles.exerciseDetail}>5 sets × 5 reps</Text>
           <View style={styles.setRow}>
-            {rowSets.map((checked, i) => (
+            {rowSets.map((set, i) => (
               <TouchableOpacity
                 key={i}
-                style={[styles.checkbox, checked && styles.checkboxChecked]}
+                style={[styles.checkbox, set.done && styles.checkboxDone, set.failed && styles.checkboxFailed]}
                 onPress={() => handleSetPress(i, rowSets, setRowSets)}
-                accessibilityLabel={`Barbell Row set ${i + 1}, ${checked ? 'completed' : 'not completed'}`}
+                onLongPress={() => handleSetLongPress(i, rowSets, setRowSets)}
+                accessibilityLabel={`Barbell Row set ${i + 1}`}
                 accessibilityRole="checkbox"
               >
-                {checked && <Text style={styles.checkmark}>✓</Text>}
+                {set.done && <Text style={styles.checkmark}>✓</Text>}
+                {set.failed && <Text style={styles.failReps}>{set.reps}</Text>}
               </TouchableOpacity>
             ))}
           </View>
@@ -107,6 +163,14 @@ export default function WorkoutScreen() {
         <RestTimer startSignal={startSignal} />
 
       </ScrollView>
+
+      {/* Rep picker modal — appears when user long-presses a set */}
+      <RepPicker
+        visible={pickerTarget !== null}
+        onConfirm={handlePickerConfirm}
+        onCancel={() => setPickerTarget(null)}
+      />
+
     </SafeAreaView>
   );
 }
@@ -172,17 +236,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  checkboxChecked: {
+  checkboxDone: {
     backgroundColor: '#4A90D9',
     borderColor: '#4A90D9',
+  },
+  checkboxFailed: {
+    backgroundColor: '#E8734A',
+    borderColor: '#E8734A',
   },
   checkmark: {
     color: '#FFFFFF',
     fontSize: 20,
     fontWeight: 'bold',
   },
-  setLabel: {
+  failReps: {
+    color: '#FFFFFF',
     fontSize: 16,
-    color: '#333333',
+    fontWeight: 'bold',
   },
 });

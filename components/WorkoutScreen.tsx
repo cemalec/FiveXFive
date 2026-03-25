@@ -248,6 +248,11 @@ export default function WorkoutScreen() {
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => setShowHistory(true)} style={styles.topBarAction}>
           <Text style={styles.topBarActionText}>History</Text>
+          {history.length > 0 && (
+            <View style={styles.historyBadge}>
+              <Text style={styles.historyBadgeText}>{history.length}</Text>
+            </View>
+          )}
         </TouchableOpacity>
         <Text style={styles.appTitle}>FiveXFive</Text>
         <TouchableOpacity onPress={() => setShowSettings(true)} style={styles.topBarAction}>
@@ -458,6 +463,21 @@ const styles = StyleSheet.create({
   topBarActionText: {
     fontSize: 14,
     fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  historyBadge: {
+    minWidth: 18,
+    height: 18,
+    paddingHorizontal: 4,
+    borderRadius: 9,
+    backgroundColor: '#E8734A',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+  },
+  historyBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
     color: '#FFFFFF',
   },
   gearIcon: {

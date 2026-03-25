@@ -4,8 +4,6 @@ import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } fr
 import RepPicker from './RepPicker';
 import RestTimer from './RestTimer';
 
-const SETS = 5;
-
 // Tracks the state of a single set
 type SetRecord = {
   done: boolean;    // completed at target (5) or above
@@ -23,11 +21,62 @@ type PickerTarget = {
 function emptySet(): SetRecord {
   return { done: false, failed: false, reps: 0 };
 }
+function emptySets(n: number): SetRecord[] {
+  return Array.from({ length: n }, emptySet);
+}
+
+// ─── Reusable exercise card ───────────────────────────────────────────────────
+type ExerciseCardProps = {
+  name: string;
+  weight: string;
+  sets: SetRecord[];
+  onPress: (i: number) => void;
+  onLongPress: (i: number) => void;
+};
+
+function ExerciseCard({ name, weight, sets, onPress, onLongPress }: ExerciseCardProps) {
+  const setCount = sets.length;
+  const repLabel = `${setCount} set${setCount > 1 ? 's' : ''} × 5 reps`;
+  return (
+    <View style={styles.exerciseCard}>
+      <View style={styles.exerciseHeader}>
+        <Text style={styles.exerciseName}>{name}</Text>
+        <Text style={styles.weightText}>{weight}</Text>
+      </View>
+      <Text style={styles.exerciseDetail}>{repLabel}</Text>
+      <View style={styles.setRow}>
+        {sets.map((set, i) => (
+          <TouchableOpacity
+            key={i}
+            style={[styles.checkbox, set.done && styles.checkboxDone, set.failed && styles.checkboxFailed]}
+            onPress={() => onPress(i)}
+            onLongPress={() => onLongPress(i)}
+            accessibilityLabel={`${name} set ${i + 1}`}
+            accessibilityRole="checkbox"
+          >
+            {set.done && <Text style={styles.checkmark}>✓</Text>}
+            {set.failed && <Text style={styles.failReps}>{set.reps}</Text>}
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function WorkoutScreen() {
-  const [squatSets, setSquatSets] = useState<SetRecord[]>(Array.from({ length: SETS }, emptySet));
-  const [benchSets, setBenchSets] = useState<SetRecord[]>(Array.from({ length: SETS }, emptySet));
-  const [rowSets, setRowSets] = useState<SetRecord[]>(Array.from({ length: SETS }, emptySet));
+  const [day, setDay] = useState<'A' | 'B'>('A');
+
+  // Day A exercises
+  const [squatASets, setSquatASets] = useState<SetRecord[]>(emptySets(5));
+  const [benchSets,  setBenchSets]  = useState<SetRecord[]>(emptySets(5));
+  const [rowSets,    setRowSets]    = useState<SetRecord[]>(emptySets(5));
+
+  // Day B exercises
+  const [squatBSets,    setSquatBSets]    = useState<SetRecord[]>(emptySets(5));
+  const [ohpSets,       setOhpSets]       = useState<SetRecord[]>(emptySets(5));
+  const [deadliftSets,  setDeadliftSets]  = useState<SetRecord[]>(emptySets(1));
+
   const [startSignal, setStartSignal] = useState(0);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
 
@@ -39,26 +88,22 @@ export default function WorkoutScreen() {
   ) {
     const current = sets[index];
     const alreadyMarked = current.done || current.failed;
-
     setSets((prev) => {
       const next = [...prev];
       next[index] = alreadyMarked ? emptySet() : { done: true, failed: false, reps: 5 };
       return next;
     });
-
-    if (!alreadyMarked) {
-      setStartSignal((prev) => prev + 1);
-    }
+    if (!alreadyMarked) setStartSignal((prev) => prev + 1);
   }
 
-  // Long press: open the rep picker so the user can record exact reps
+  // Long press: open the rep picker
   function handleSetLongPress(
     index: number,
     sets: SetRecord[],
     setSets: React.Dispatch<React.SetStateAction<SetRecord[]>>
   ) {
     const current = sets[index];
-    if (current.done || current.failed) return; // already marked, ignore
+    if (current.done || current.failed) return;
     setPickerTarget({ index, sets, setSets });
   }
 
@@ -68,11 +113,7 @@ export default function WorkoutScreen() {
     const { index, setSets } = pickerTarget;
     setSets((prev) => {
       const next = [...prev];
-      next[index] = {
-        done: reps >= 5,
-        failed: reps < 5,
-        reps,
-      };
+      next[index] = { done: reps >= 5, failed: reps < 5, reps };
       return next;
     });
     setStartSignal((prev) => prev + 1);
@@ -83,81 +124,33 @@ export default function WorkoutScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scroll}>
 
-        {/* Day header */}
-        <Text style={styles.dayTitle}>Day A</Text>
-
-        {/* Squat exercise */}
-        <View style={styles.exerciseCard}>
-          <View style={styles.exerciseHeader}>
-            <Text style={styles.exerciseName}>Squat</Text>
-            <Text style={styles.weightText}>45 lb</Text>
-          </View>
-          <Text style={styles.exerciseDetail}>5 sets × 5 reps</Text>
-
-          <View style={styles.setRow}>
-            {squatSets.map((set, i) => (
-              <TouchableOpacity
-                key={i}
-                style={[styles.checkbox, set.done && styles.checkboxDone, set.failed && styles.checkboxFailed]}
-                onPress={() => handleSetPress(i, squatSets, setSquatSets)}
-                onLongPress={() => handleSetLongPress(i, squatSets, setSquatSets)}
-                accessibilityLabel={`Squat set ${i + 1}`}
-                accessibilityRole="checkbox"
-              >
-                {set.done && <Text style={styles.checkmark}>✓</Text>}
-                {set.failed && <Text style={styles.failReps}>{set.reps}</Text>}
-              </TouchableOpacity>
-            ))}
-          </View>
+        {/* Day toggle header */}
+        <View style={styles.dayHeader}>
+          <TouchableOpacity
+            style={[styles.dayTab, day === 'A' && styles.dayTabActive]}
+            onPress={() => setDay('A')}
+          >
+            <Text style={[styles.dayTabText, day === 'A' && styles.dayTabTextActive]}>Day A</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.dayTab, day === 'B' && styles.dayTabActive]}
+            onPress={() => setDay('B')}
+          >
+            <Text style={[styles.dayTabText, day === 'B' && styles.dayTabTextActive]}>Day B</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Bench Press exercise */}
-        <View style={styles.exerciseCard}>
-          <View style={styles.exerciseHeader}>
-            <Text style={styles.exerciseName}>Bench Press</Text>
-            <Text style={styles.weightText}>45 lb</Text>
-          </View>
-          <Text style={styles.exerciseDetail}>5 sets × 5 reps</Text>
-          <View style={styles.setRow}>
-            {benchSets.map((set, i) => (
-              <TouchableOpacity
-                key={i}
-                style={[styles.checkbox, set.done && styles.checkboxDone, set.failed && styles.checkboxFailed]}
-                onPress={() => handleSetPress(i, benchSets, setBenchSets)}
-                onLongPress={() => handleSetLongPress(i, benchSets, setBenchSets)}
-                accessibilityLabel={`Bench Press set ${i + 1}`}
-                accessibilityRole="checkbox"
-              >
-                {set.done && <Text style={styles.checkmark}>✓</Text>}
-                {set.failed && <Text style={styles.failReps}>{set.reps}</Text>}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+        {day === 'A' && <>
+          <ExerciseCard name="Squat"       weight="45 lb" sets={squatASets} onPress={(i) => handleSetPress(i, squatASets, setSquatASets)} onLongPress={(i) => handleSetLongPress(i, squatASets, setSquatASets)} />
+          <ExerciseCard name="Bench Press" weight="45 lb" sets={benchSets}  onPress={(i) => handleSetPress(i, benchSets,  setBenchSets)}  onLongPress={(i) => handleSetLongPress(i, benchSets,  setBenchSets)} />
+          <ExerciseCard name="Barbell Row" weight="45 lb" sets={rowSets}    onPress={(i) => handleSetPress(i, rowSets,    setRowSets)}    onLongPress={(i) => handleSetLongPress(i, rowSets,    setRowSets)} />
+        </>}
 
-        {/* Barbell Row exercise */}
-        <View style={styles.exerciseCard}>
-          <View style={styles.exerciseHeader}>
-            <Text style={styles.exerciseName}>Barbell Row</Text>
-            <Text style={styles.weightText}>45 lb</Text>
-          </View>
-          <Text style={styles.exerciseDetail}>5 sets × 5 reps</Text>
-          <View style={styles.setRow}>
-            {rowSets.map((set, i) => (
-              <TouchableOpacity
-                key={i}
-                style={[styles.checkbox, set.done && styles.checkboxDone, set.failed && styles.checkboxFailed]}
-                onPress={() => handleSetPress(i, rowSets, setRowSets)}
-                onLongPress={() => handleSetLongPress(i, rowSets, setRowSets)}
-                accessibilityLabel={`Barbell Row set ${i + 1}`}
-                accessibilityRole="checkbox"
-              >
-                {set.done && <Text style={styles.checkmark}>✓</Text>}
-                {set.failed && <Text style={styles.failReps}>{set.reps}</Text>}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+        {day === 'B' && <>
+          <ExerciseCard name="Squat"          weight="45 lb" sets={squatBSets}   onPress={(i) => handleSetPress(i, squatBSets,   setSquatBSets)}   onLongPress={(i) => handleSetLongPress(i, squatBSets,   setSquatBSets)} />
+          <ExerciseCard name="Overhead Press" weight="45 lb" sets={ohpSets}      onPress={(i) => handleSetPress(i, ohpSets,      setOhpSets)}      onLongPress={(i) => handleSetLongPress(i, ohpSets,      setOhpSets)} />
+          <ExerciseCard name="Deadlift"       weight="45 lb" sets={deadliftSets} onPress={(i) => handleSetPress(i, deadliftSets, setDeadliftSets)} onLongPress={(i) => handleSetLongPress(i, deadliftSets, setDeadliftSets)} />
+        </>}
 
         {/* Rest timer */}
         <RestTimer startSignal={startSignal} />
@@ -184,11 +177,29 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 24,
   },
-  dayTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1A1A2E',
+  dayHeader: {
+    flexDirection: 'row',
     marginBottom: 20,
+    gap: 10,
+  },
+  dayTab: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#1A1A2E',
+    alignItems: 'center',
+  },
+  dayTabActive: {
+    backgroundColor: '#1A1A2E',
+  },
+  dayTabText: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1A1A2E',
+  },
+  dayTabTextActive: {
+    color: '#FFFFFF',
   },
   exerciseCard: {
     backgroundColor: '#FFFFFF',

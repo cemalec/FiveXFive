@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import RepPicker from './RepPicker';
 import RestTimer from './RestTimer';
+import { loadWorkoutState, saveWorkoutState, WorkoutState, DEFAULT_STATE } from '../storage/workoutStore';
 
 // Tracks the state of a single set
 type SetRecord = {
@@ -65,7 +66,18 @@ function ExerciseCard({ name, weight, sets, onPress, onLongPress }: ExerciseCard
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function WorkoutScreen() {
+  const [workoutState, setWorkoutState] = useState<WorkoutState>(DEFAULT_STATE);
+  const [loading, setLoading] = useState(true);
   const [day, setDay] = useState<'A' | 'B'>('A');
+
+  // Load persisted weights and next scheduled day on first render
+  useEffect(() => {
+    loadWorkoutState().then((state) => {
+      setWorkoutState(state);
+      setDay(state.nextDay);
+      setLoading(false);
+    });
+  }, []);
 
   // Day A exercises
   const [squatASets, setSquatASets] = useState<SetRecord[]>(emptySets(5));
@@ -120,6 +132,55 @@ export default function WorkoutScreen() {
     setPickerTarget(null);
   }
 
+  // True when every set in the array has been marked done or failed
+  function allMarked(sets: SetRecord[]): boolean {
+    return sets.length > 0 && sets.every((s) => s.done || s.failed);
+  }
+
+  const canFinish =
+    day === 'A'
+      ? allMarked(squatASets) && allMarked(benchSets) && allMarked(rowSets)
+      : allMarked(squatBSets) && allMarked(ohpSets)   && allMarked(deadliftSets);
+
+  // Increment weights (squat always; others only on full success), save, reset sets
+  async function handleFinishWorkout() {
+    const newWeights = { ...workoutState.weights };
+    if (day === 'A') {
+      newWeights.squat += workoutState.increments.squat;
+      if (benchSets.every((s) => s.done)) newWeights.bench += workoutState.increments.bench;
+      if (rowSets.every((s) => s.done))   newWeights.row   += workoutState.increments.row;
+    } else {
+      newWeights.squat += workoutState.increments.squat;
+      if (ohpSets.every((s) => s.done))      newWeights.ohp      += workoutState.increments.ohp;
+      if (deadliftSets.every((s) => s.done)) newWeights.deadlift += workoutState.increments.deadlift;
+    }
+
+    const nextDay: 'A' | 'B' = day === 'A' ? 'B' : 'A';
+    const newState: WorkoutState = { ...workoutState, nextDay, weights: newWeights };
+    await saveWorkoutState(newState);
+    setWorkoutState(newState);
+
+    if (day === 'A') {
+      setSquatASets(emptySets(5));
+      setBenchSets(emptySets(5));
+      setRowSets(emptySets(5));
+    } else {
+      setSquatBSets(emptySets(5));
+      setOhpSets(emptySets(5));
+      setDeadliftSets(emptySets(1));
+    }
+    setDay(nextDay);
+    Alert.alert('Workout Complete!', `Day ${day} done. Next up: Day ${nextDay}.`);
+  }
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <ActivityIndicator size="large" color="#4A90D9" style={{ flex: 1 }} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -141,19 +202,26 @@ export default function WorkoutScreen() {
         </View>
 
         {day === 'A' && <>
-          <ExerciseCard name="Squat"       weight="45 lb" sets={squatASets} onPress={(i) => handleSetPress(i, squatASets, setSquatASets)} onLongPress={(i) => handleSetLongPress(i, squatASets, setSquatASets)} />
-          <ExerciseCard name="Bench Press" weight="45 lb" sets={benchSets}  onPress={(i) => handleSetPress(i, benchSets,  setBenchSets)}  onLongPress={(i) => handleSetLongPress(i, benchSets,  setBenchSets)} />
-          <ExerciseCard name="Barbell Row" weight="45 lb" sets={rowSets}    onPress={(i) => handleSetPress(i, rowSets,    setRowSets)}    onLongPress={(i) => handleSetLongPress(i, rowSets,    setRowSets)} />
+          <ExerciseCard name="Squat"       weight={`${workoutState.weights.squat} lb`} sets={squatASets} onPress={(i) => handleSetPress(i, squatASets, setSquatASets)} onLongPress={(i) => handleSetLongPress(i, squatASets, setSquatASets)} />
+          <ExerciseCard name="Bench Press" weight={`${workoutState.weights.bench} lb`} sets={benchSets}  onPress={(i) => handleSetPress(i, benchSets,  setBenchSets)}  onLongPress={(i) => handleSetLongPress(i, benchSets,  setBenchSets)} />
+          <ExerciseCard name="Barbell Row" weight={`${workoutState.weights.row} lb`}   sets={rowSets}    onPress={(i) => handleSetPress(i, rowSets,    setRowSets)}    onLongPress={(i) => handleSetLongPress(i, rowSets,    setRowSets)} />
         </>}
 
         {day === 'B' && <>
-          <ExerciseCard name="Squat"          weight="45 lb" sets={squatBSets}   onPress={(i) => handleSetPress(i, squatBSets,   setSquatBSets)}   onLongPress={(i) => handleSetLongPress(i, squatBSets,   setSquatBSets)} />
-          <ExerciseCard name="Overhead Press" weight="45 lb" sets={ohpSets}      onPress={(i) => handleSetPress(i, ohpSets,      setOhpSets)}      onLongPress={(i) => handleSetLongPress(i, ohpSets,      setOhpSets)} />
-          <ExerciseCard name="Deadlift"       weight="45 lb" sets={deadliftSets} onPress={(i) => handleSetPress(i, deadliftSets, setDeadliftSets)} onLongPress={(i) => handleSetLongPress(i, deadliftSets, setDeadliftSets)} />
+          <ExerciseCard name="Squat"          weight={`${workoutState.weights.squat} lb`}    sets={squatBSets}   onPress={(i) => handleSetPress(i, squatBSets,   setSquatBSets)}   onLongPress={(i) => handleSetLongPress(i, squatBSets,   setSquatBSets)} />
+          <ExerciseCard name="Overhead Press" weight={`${workoutState.weights.ohp} lb`}      sets={ohpSets}      onPress={(i) => handleSetPress(i, ohpSets,      setOhpSets)}      onLongPress={(i) => handleSetLongPress(i, ohpSets,      setOhpSets)} />
+          <ExerciseCard name="Deadlift"       weight={`${workoutState.weights.deadlift} lb`} sets={deadliftSets} onPress={(i) => handleSetPress(i, deadliftSets, setDeadliftSets)} onLongPress={(i) => handleSetLongPress(i, deadliftSets, setDeadliftSets)} />
         </>}
 
         {/* Rest timer */}
         <RestTimer startSignal={startSignal} />
+
+        {/* Finish button — only appears once every set is marked */}
+        {canFinish && (
+          <TouchableOpacity style={styles.finishButton} onPress={handleFinishWorkout}>
+            <Text style={styles.finishButtonText}>Finish Workout</Text>
+          </TouchableOpacity>
+        )}
 
       </ScrollView>
 
@@ -264,5 +332,18 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  finishButton: {
+    backgroundColor: '#2ECC71',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  finishButtonText: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '800',
   },
 });

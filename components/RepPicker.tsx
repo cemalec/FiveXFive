@@ -79,7 +79,7 @@ export default function RepPicker({ visible, onConfirm, onCancel }: Props) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(19, 23, 32, 0.55)',
+    backgroundColor: theme.colors.scrim,
     alignItems: 'center',
     justifyContent: 'center',
   },

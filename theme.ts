@@ -17,6 +17,7 @@ export const theme = {
     dangerSoft: '#F1D2C7',
     badge: '#C15733',
     white: '#FFFFFF',
+    scrim: 'rgba(19, 23, 32, 0.55)',
   },
   radius: {
     sm: 10,

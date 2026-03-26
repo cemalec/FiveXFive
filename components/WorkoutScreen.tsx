@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#3A4354',
+    borderBottomColor: theme.colors.line,
   },
   appTitle: {
     fontSize: 22,

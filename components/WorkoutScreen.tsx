@@ -98,6 +98,7 @@ export default function WorkoutScreen() {
   const [deadliftSets,  setDeadliftSets]  = useState<SetRecord[]>(emptySets(1));
 
   const [startSignal, setStartSignal] = useState(0);
+  const [resetTimerSignal, setResetTimerSignal] = useState(0);
   const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
 
   // Toggle unit and persist
@@ -217,6 +218,7 @@ export default function WorkoutScreen() {
       setDeadliftSets(emptySets(1));
     }
     setDay(nextDay);
+    setResetTimerSignal((prev) => prev + 1);
     Alert.alert('Workout Complete!', `Day ${day} done. Next up: Day ${nextDay}.`);
   }
 
@@ -302,7 +304,7 @@ export default function WorkoutScreen() {
         </>}
 
         {/* Rest timer */}
-        <RestTimer startSignal={startSignal} />
+        <RestTimer startSignal={startSignal} resetSignal={resetTimerSignal} />
 
         {/* Finish button — only appears once every set is marked */}
         {canFinish && (

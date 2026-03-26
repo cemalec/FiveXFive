@@ -5,9 +5,10 @@ const DURATION = 180; // 3 minutes in seconds
 
 type Props = {
   startSignal?: number; // increments each time a set is checked — triggers the timer to start
+  resetSignal?: number; // increments when the timer should be fully reset and stopped
 };
 
-export default function RestTimer({ startSignal = 0 }: Props) {
+export default function RestTimer({ startSignal = 0, resetSignal = 0 }: Props) {
   const [secondsLeft, setSecondsLeft] = useState(DURATION);
   const [isRunning, setIsRunning] = useState(false);
 
@@ -40,6 +41,13 @@ export default function RestTimer({ startSignal = 0 }: Props) {
     setSecondsLeft(DURATION);
     setIsRunning(true);
   }, [startSignal]);
+
+  // Explicit reset from parent: stop and clear the timer completely
+  useEffect(() => {
+    if (resetSignal === 0) return;
+    setIsRunning(false);
+    setSecondsLeft(DURATION);
+  }, [resetSignal]);
 
   function handlePress() {
     if (isRunning) {

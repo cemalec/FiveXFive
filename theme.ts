@@ -1,0 +1,28 @@
+export const theme = {
+  colors: {
+    background: '#F4EDE2',
+    backgroundSoft: '#FBF6EE',
+    surface: '#FFF9F1',
+    surfaceMuted: '#EFE3D1',
+    ink: '#1F2430',
+    inkSoft: '#534E45',
+    muted: '#7B7467',
+    line: '#DDD0BE',
+    header: '#232B39',
+    accent: '#C66A3B',
+    accentSoft: '#F2D5C4',
+    success: '#3E6A5A',
+    successSoft: '#DCE8E1',
+    danger: '#B85733',
+    dangerSoft: '#F1D2C7',
+    badge: '#C15733',
+    white: '#FFFFFF',
+    scrim: 'rgba(19, 23, 32, 0.55)',
+  },
+  radius: {
+    sm: 10,
+    md: 14,
+    lg: 20,
+    xl: 28,
+  },
+} as const;

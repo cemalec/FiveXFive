@@ -463,11 +463,11 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
   },
   sectionHeader: {
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 11,
+    fontWeight: '800',
     color: theme.colors.textMuted,
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 2,
     marginBottom: 8,
     marginTop: 28,
   },
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     backgroundColor: theme.colors.accent,
-    borderRadius: theme.radius.lg,
+    borderRadius: theme.radius.pill,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 24,
@@ -524,7 +524,9 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: theme.colors.white,
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   secondaryButton: {
     backgroundColor: theme.colors.surface,

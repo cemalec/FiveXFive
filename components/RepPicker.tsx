@@ -89,16 +89,12 @@ const styles = StyleSheet.create({
     padding: 28,
     width: 300,
     alignItems: 'center',
-    borderTopWidth: 3,
-    borderTopColor: theme.colors.primary,
     ...theme.shadow.modal,
   },
   title: {
     fontSize: 18,
     fontWeight: '700',
     color: theme.colors.text,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
     marginBottom: 24,
   },
   pickerRow: {

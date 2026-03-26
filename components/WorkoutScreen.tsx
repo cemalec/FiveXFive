@@ -356,7 +356,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: theme.colors.text,
-    letterSpacing: 1,
   },
   dayTabTextActive: {
     color: theme.colors.white,
@@ -364,10 +363,10 @@ const styles = StyleSheet.create({
   exerciseCard: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.radius.lg,
-    padding: 18,
+    padding: 16,
     marginBottom: 24,
-    borderTopWidth: 3,
-    borderTopColor: theme.colors.primary,
+    borderLeftWidth: 3,
+    borderLeftColor: theme.colors.primary,
     ...theme.shadow.card,
   },
   exerciseHeader: {
@@ -380,13 +379,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: theme.colors.text,
-    letterSpacing: 0.5,
   },
   weightText: {
     fontSize: 22,
     fontWeight: '800',
     color: theme.colors.accent,
-    fontVariant: ['tabular-nums'] as any,
   },
   exerciseDetail: {
     fontSize: 13,
@@ -404,9 +401,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   checkbox: {
-    width: 46,
-    height: 46,
-    borderRadius: theme.radius.md,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     borderWidth: 2,
     borderColor: theme.colors.accent,
     alignItems: 'center',
@@ -442,8 +439,6 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
     fontSize: 20,
     fontWeight: '800',
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
   },
   unitToggle: {
     paddingVertical: 10,
@@ -470,11 +465,10 @@ const styles = StyleSheet.create({
     borderBottomColor: theme.colors.border,
   },
   appTitle: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '800',
-    color: theme.colors.accent,
-    letterSpacing: 2.5,
-    textTransform: 'uppercase',
+    color: theme.colors.text,
+    letterSpacing: 1.5,
   },
   topBarAction: {
     minWidth: 52,

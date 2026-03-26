@@ -435,8 +435,8 @@ const styles = StyleSheet.create({
   },
   unitToggle: {
     borderWidth: 1,
-    borderColor: '#434B5D',
-    backgroundColor: '#2D3647',
+    borderColor: theme.colors.header,
+    backgroundColor: theme.colors.header,
     borderRadius: theme.radius.sm,
     paddingVertical: 4,
   },

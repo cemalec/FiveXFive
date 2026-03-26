@@ -92,6 +92,79 @@ The library we use to save data to the phone's local storage. Think of it like a
 
 ---
 
+## Style Guidance
+
+As the app gets more complete, styling needs the same discipline as logic: one clear system, not a pile of one-off tweaks.
+
+### What We Want The App To Feel Like
+
+The app should feel:
+
+- **focused** — the current workout should be the center of attention
+- **calm** — not noisy, flashy, or cluttered
+- **strong** — it should feel like a training tool, not a toy
+- **easy to scan** — weights, sets, and status should stand out immediately
+
+### Visual Hierarchy Rules
+
+When styling any screen, use this importance order:
+
+1. **Exercise name**
+2. **Working weight**
+3. **Set buttons / completion state**
+4. **Warm-ups and helper text**
+5. **Secondary metadata** like notes, timestamps, or explanations
+
+This means warm-up weights should be visible, but never compete with the working weight.
+
+### Styling Rules
+
+- Use **one shared theme** for colors, surfaces, borders, and radii.
+- Use **one main accent color** for interactive emphasis instead of several unrelated bright colors.
+- Keep backgrounds soft and cards readable. The app should not feel sterile white or harsh black.
+- Use strong contrast for primary information and softer contrast for supporting information.
+- Avoid adding decorative elements unless they improve clarity.
+
+### Card Design Rules
+
+Workout cards should do most of the visual work.
+
+- Cards should be clearly separated from the background.
+- The **working weight** should be the boldest element inside the card.
+- Warm-up text should sit underneath the main description in a smaller, quieter style.
+- Set buttons should look easy to tap and easy to scan at a glance.
+
+### When Adding New UI
+
+Before adding styles, ask:
+
+1. What is the most important thing on this screen?
+2. What should the user notice first?
+3. What information can be quieter?
+4. Can this use the existing theme instead of inventing a new style?
+
+If a new screen needs its own visual treatment, it should still feel like it belongs to the same app.
+
+### What To Avoid
+
+- Random color choices per component
+- Oversized helper text
+- Buttons that all look equally important
+- Too many borders, shadows, or nested boxes
+- Styling based on "this looks cool" instead of "this makes the app clearer"
+
+### Recommended Workflow For Style Work
+
+When making design changes:
+
+1. Start with the **theme** and visual rules first.
+2. Update the **main workout screen** before styling secondary screens.
+3. Reuse tokens and patterns across Settings, History, Timer, and dialogs.
+4. Test changes on a phone, not just in code.
+5. If experimenting heavily, use a separate git branch.
+
+---
+
 ## When Things Go Wrong
 
 - **Red error screen on your phone?** Read the error message — it almost always tells you exactly which file and line number caused the problem. Copy it and bring it here.

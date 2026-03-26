@@ -133,9 +133,11 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.surface,
     paddingHorizontal: 8,
     paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
   },
   headerSide: {
     width: 52,
@@ -144,7 +146,7 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 38,
-    color: theme.colors.white,
+    color: theme.colors.primary,
     lineHeight: 42,
   },
   headerTitle: {
@@ -152,7 +154,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 20,
     fontWeight: '700',
-    color: theme.colors.white,
+    color: theme.colors.text,
   },
   scroll: {
     padding: 24,

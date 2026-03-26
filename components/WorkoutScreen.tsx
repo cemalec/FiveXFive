@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
   dayTab: {
     flex: 1,
     paddingVertical: 10,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.pill,
     borderWidth: 2,
     borderColor: theme.colors.primary,
     alignItems: 'center',
@@ -365,6 +365,8 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.lg,
     padding: 16,
     marginBottom: 24,
+    borderLeftWidth: 3,
+    borderLeftColor: theme.colors.primary,
     ...theme.shadow.card,
   },
   exerciseHeader: {
@@ -401,7 +403,7 @@ const styles = StyleSheet.create({
   checkbox: {
     width: 44,
     height: 44,
-    borderRadius: theme.radius.lg,
+    borderRadius: 22,
     borderWidth: 2,
     borderColor: theme.colors.accent,
     alignItems: 'center',
@@ -426,8 +428,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   finishButton: {
-    backgroundColor: theme.colors.success,
-    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.accent,
+    borderRadius: theme.radius.pill,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 8,
@@ -456,15 +458,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.surface,
     paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
   },
   appTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: theme.colors.white,
-    letterSpacing: 1,
+    color: theme.colors.text,
+    letterSpacing: 1.5,
   },
   topBarAction: {
     minWidth: 52,
@@ -475,7 +479,7 @@ const styles = StyleSheet.create({
   topBarActionText: {
     fontSize: 14,
     fontWeight: '700',
-    color: theme.colors.white,
+    color: theme.colors.primary,
   },
   historyBadge: {
     minWidth: 18,
@@ -494,6 +498,6 @@ const styles = StyleSheet.create({
   },
   gearIcon: {
     fontSize: 24,
-    color: theme.colors.white,
+    color: theme.colors.primary,
   },
 });

@@ -67,7 +67,7 @@ export default function RestTimer({ startSignal = 0, resetSignal = 0 }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Rest</Text>
+      <Text style={styles.label}>Rest Timer</Text>
       <Text style={styles.timerText}>{display}</Text>
       <TouchableOpacity
         style={[styles.button, isRunning && styles.buttonRunning]}
@@ -75,7 +75,9 @@ export default function RestTimer({ startSignal = 0, resetSignal = 0 }: Props) {
         accessibilityLabel={isRunning ? 'Skip rest' : 'Start rest timer'}
         accessibilityRole="button"
       >
-        <Text style={styles.buttonText}>{isRunning ? 'Skip' : 'Start'}</Text>
+        <Text style={[styles.buttonText, isRunning && { color: theme.colors.warning }]}>
+          {isRunning ? 'Skip' : 'Start'}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -83,38 +85,47 @@ export default function RestTimer({ startSignal = 0, resetSignal = 0 }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
-    paddingVertical: 12,
+    borderRadius: theme.radius.xl,
+    paddingVertical: 20,
     paddingHorizontal: 16,
+    marginBottom: 16,
+    borderLeftWidth: 3,
+    borderLeftColor: theme.colors.primary,
     ...theme.shadow.card,
   },
   label: {
-    fontSize: 16,
+    fontSize: 13,
     color: theme.colors.textSecondary,
     fontWeight: '600',
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+    marginBottom: 4,
   },
   timerText: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: theme.colors.text,
+    fontSize: 52,
+    fontWeight: '200',
+    color: theme.colors.primary,
     fontVariant: ['tabular-nums'],
+    letterSpacing: 4,
+    marginBottom: 16,
   },
   button: {
-    paddingVertical: 8,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 44,
     backgroundColor: theme.colors.accent,
-    borderRadius: theme.radius.sm,
+    borderRadius: theme.radius.pill,
   },
   buttonRunning: {
-    backgroundColor: theme.colors.warning,
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: theme.colors.warning,
   },
   buttonText: {
     color: theme.colors.white,
-    fontSize: 22,
+    fontSize: 16,
     fontWeight: '700',
+    letterSpacing: 0.5,
   },
 });

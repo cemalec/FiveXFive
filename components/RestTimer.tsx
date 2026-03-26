@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Platform, StyleSheet, Text, TouchableOpacity, Vibration, View } from 'react-native';
+import { theme } from '../theme';
 
 const DURATION = 180; // 3 minutes in seconds
 
@@ -85,38 +86,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
     paddingVertical: 12,
     paddingHorizontal: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    ...theme.shadow.card,
   },
   label: {
     fontSize: 16,
-    color: '#555555',
+    color: theme.colors.textSecondary,
     fontWeight: '600',
   },
   timerText: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#1A1A2E',
+    color: theme.colors.text,
     fontVariant: ['tabular-nums'],
   },
   button: {
     paddingVertical: 8,
     paddingHorizontal: 20,
-    backgroundColor: '#4A90D9',
-    borderRadius: 8,
+    backgroundColor: theme.colors.accent,
+    borderRadius: theme.radius.sm,
   },
   buttonRunning: {
-    backgroundColor: '#C0392B', // red when running, to signal "this will cancel"
+    backgroundColor: theme.colors.warning,
   },
   buttonText: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontSize: 22,
     fontWeight: '700',
   },

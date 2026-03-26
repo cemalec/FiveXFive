@@ -6,6 +6,7 @@ import RepPicker from './RepPicker';
 import RestTimer from './RestTimer';
 import SettingsScreen from './SettingsScreen';
 import { appendWorkoutHistory, calculateWarmupWeights, DEFAULT_STATE, formatNumber, formatWeight, loadWorkoutHistory, loadWorkoutState, saveWorkoutState, WorkoutLogEntry, WorkoutState } from '../storage/workoutStore';
+import { theme } from '../theme';
 
 // Tracks the state of a single set
 type SetRecord = {
@@ -225,7 +226,7 @@ export default function WorkoutScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea}>
-        <ActivityIndicator size="large" color="#4A90D9" style={{ flex: 1 }} />
+        <ActivityIndicator size="large" color={theme.colors.accent} style={{ flex: 1 }} />
       </SafeAreaView>
     );
   }
@@ -329,7 +330,7 @@ export default function WorkoutScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: theme.colors.background,
   },
   scroll: {
     flexGrow: 1,
@@ -343,32 +344,28 @@ const styles = StyleSheet.create({
   dayTab: {
     flex: 1,
     paddingVertical: 10,
-    borderRadius: 10,
+    borderRadius: theme.radius.md,
     borderWidth: 2,
-    borderColor: '#1A1A2E',
+    borderColor: theme.colors.primary,
     alignItems: 'center',
   },
   dayTabActive: {
-    backgroundColor: '#1A1A2E',
+    backgroundColor: theme.colors.primary,
   },
   dayTabText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: theme.colors.text,
   },
   dayTabTextActive: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
   },
   exerciseCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
     padding: 16,
     marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    ...theme.shadow.card,
   },
   exerciseHeader: {
     flexDirection: 'row',
@@ -379,21 +376,21 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: theme.colors.text,
   },
   weightText: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#4A90D9',
+    color: theme.colors.accent,
   },
   exerciseDetail: {
     fontSize: 13,
-    color: '#888888',
+    color: theme.colors.textMuted,
     marginBottom: 2,
   },
   warmupText: {
     fontSize: 12,
-    color: '#666666',
+    color: theme.colors.textSoft,
     marginBottom: 6,
   },
   setRow: {
@@ -404,69 +401,69 @@ const styles = StyleSheet.create({
   checkbox: {
     width: 44,
     height: 44,
-    borderRadius: 8,
+    borderRadius: theme.radius.lg,
     borderWidth: 2,
-    borderColor: '#4A90D9',
+    borderColor: theme.colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
   checkboxDone: {
-    backgroundColor: '#4A90D9',
-    borderColor: '#4A90D9',
+    backgroundColor: theme.colors.accent,
+    borderColor: theme.colors.accent,
   },
   checkboxFailed: {
-    backgroundColor: '#E8734A',
-    borderColor: '#E8734A',
+    backgroundColor: theme.colors.danger,
+    borderColor: theme.colors.danger,
   },
   checkmark: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontSize: 20,
     fontWeight: 'bold',
   },
   failReps: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontSize: 16,
     fontWeight: 'bold',
   },
   finishButton: {
-    backgroundColor: '#2ECC71',
-    borderRadius: 12,
+    backgroundColor: theme.colors.success,
+    borderRadius: theme.radius.lg,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 8,
     marginBottom: 16,
   },
   finishButtonText: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontSize: 20,
     fontWeight: '800',
   },
   unitToggle: {
     paddingVertical: 10,
     paddingHorizontal: 14,
-    borderRadius: 10,
+    borderRadius: theme.radius.md,
     borderWidth: 2,
-    borderColor: '#1A1A2E',
+    borderColor: theme.colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   unitToggleText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: theme.colors.text,
   },
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#1A1A2E',
+    backgroundColor: theme.colors.primary,
     paddingHorizontal: 20,
     paddingVertical: 12,
   },
   appTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: theme.colors.white,
     letterSpacing: 1,
   },
   topBarAction: {
@@ -478,14 +475,14 @@ const styles = StyleSheet.create({
   topBarActionText: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: theme.colors.white,
   },
   historyBadge: {
     minWidth: 18,
     height: 18,
     paddingHorizontal: 4,
     borderRadius: 9,
-    backgroundColor: '#E8734A',
+    backgroundColor: theme.colors.danger,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 4,
@@ -493,10 +490,10 @@ const styles = StyleSheet.create({
   historyBadgeText: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: theme.colors.white,
   },
   gearIcon: {
     fontSize: 24,
-    color: '#FFFFFF',
+    color: theme.colors.white,
   },
 });

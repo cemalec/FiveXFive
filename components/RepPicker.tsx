@@ -1,4 +1,5 @@
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { theme } from '../theme';
 
 type Props = {
   visible: boolean;
@@ -25,9 +26,9 @@ export default function RepPicker({ visible, onConfirm, onCancel }: Props) {
 
   // Color the number based on how it compares to the target
   const numberColor =
-    reps < TARGET_REPS ? '#E8734A'  // orange — didn't finish
-    : reps === TARGET_REPS ? '#4A90D9' // blue — hit the target
-    : '#4CAF50';                        // green — exceeded target
+    reps < TARGET_REPS ? theme.colors.danger
+    : reps === TARGET_REPS ? theme.colors.accent
+    : theme.colors.success;
 
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -78,26 +79,22 @@ export default function RepPicker({ visible, onConfirm, onCancel }: Props) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: theme.colors.overlay,
     alignItems: 'center',
     justifyContent: 'center',
   },
   card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.xl,
     padding: 28,
     width: 300,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+    ...theme.shadow.modal,
   },
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: theme.colors.text,
     marginBottom: 24,
   },
   pickerRow: {
@@ -108,16 +105,16 @@ const styles = StyleSheet.create({
   adjButton: {
     width: 52,
     height: 52,
-    borderRadius: 26,
-    backgroundColor: '#1A1A2E',
+    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   adjButtonDisabled: {
-    backgroundColor: '#CCCCCC',
+    backgroundColor: theme.colors.border,
   },
   adjButtonText: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontSize: 26,
     fontWeight: '300',
     lineHeight: 30,
@@ -131,7 +128,7 @@ const styles = StyleSheet.create({
   },
   hint: {
     fontSize: 13,
-    color: '#888888',
+    color: theme.colors.textMuted,
     marginBottom: 24,
   },
   buttonRow: {
@@ -141,25 +138,25 @@ const styles = StyleSheet.create({
   cancelButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 10,
+    borderRadius: theme.radius.md,
     borderWidth: 1,
-    borderColor: '#CCCCCC',
+    borderColor: theme.colors.border,
     alignItems: 'center',
   },
   cancelText: {
     fontSize: 16,
-    color: '#555555',
+    color: theme.colors.textSecondary,
     fontWeight: '600',
   },
   confirmButton: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 10,
+    borderRadius: theme.radius.md,
     alignItems: 'center',
   },
   confirmText: {
     fontSize: 16,
-    color: '#FFFFFF',
+    color: theme.colors.white,
     fontWeight: '700',
   },
 });

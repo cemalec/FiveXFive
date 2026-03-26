@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { formatWeight, Unit, WorkoutLogEntry } from '../storage/workoutStore';
+import { theme } from '../theme';
 
 type Props = {
   history: WorkoutLogEntry[];
@@ -127,14 +128,14 @@ export default function HistoryScreen({ history, displayUnit, onClose }: Props) 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: theme.colors.background,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A2E',
+    backgroundColor: theme.colors.header,
     paddingHorizontal: 8,
-    paddingVertical: 12,
+    paddingVertical: 14,
   },
   headerSide: {
     width: 52,
@@ -143,7 +144,7 @@ const styles = StyleSheet.create({
   },
   backArrow: {
     fontSize: 38,
-    color: '#FFFFFF',
+    color: theme.colors.white,
     lineHeight: 42,
   },
   headerTitle: {
@@ -151,31 +152,34 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 20,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: theme.colors.white,
   },
   scroll: {
-    padding: 24,
+    paddingHorizontal: 20,
+    paddingTop: 18,
     paddingBottom: 48,
   },
   summaryCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.line,
     padding: 18,
     marginBottom: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.07,
+    shadowRadius: 16,
+    elevation: 4,
   },
   summaryCount: {
     fontSize: 30,
     fontWeight: '800',
-    color: '#1A1A2E',
+    color: theme.colors.ink,
   },
   summaryLabel: {
     fontSize: 14,
-    color: '#666666',
+    color: theme.colors.muted,
     marginTop: 2,
   },
   groupToggleRow: {
@@ -186,36 +190,40 @@ const styles = StyleSheet.create({
   groupToggle: {
     flex: 1,
     paddingVertical: 10,
-    borderRadius: 10,
+    borderRadius: theme.radius.md,
     borderWidth: 1,
-    borderColor: '#1A1A2E',
+    borderColor: theme.colors.line,
     alignItems: 'center',
+    backgroundColor: theme.colors.backgroundSoft,
   },
   groupToggleActive: {
-    backgroundColor: '#1A1A2E',
+    backgroundColor: theme.colors.header,
+    borderColor: theme.colors.header,
   },
   groupToggleText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: theme.colors.ink,
   },
   groupToggleTextActive: {
-    color: '#FFFFFF',
+    color: theme.colors.white,
   },
   emptyCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.line,
     padding: 20,
   },
   emptyTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: theme.colors.ink,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 15,
-    color: '#666666',
+    color: theme.colors.inkSoft,
     lineHeight: 21,
   },
   groupSection: {
@@ -224,24 +232,26 @@ const styles = StyleSheet.create({
   groupTitle: {
     fontSize: 19,
     fontWeight: '800',
-    color: '#1A1A2E',
+    color: theme.colors.ink,
   },
   groupCount: {
     fontSize: 13,
-    color: '#888888',
+    color: theme.colors.muted,
     marginTop: 2,
     marginBottom: 10,
   },
   workoutCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.line,
     padding: 16,
-    marginBottom: 20,
+    marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.07,
+    shadowRadius: 16,
+    elevation: 4,
   },
   workoutHeader: {
     marginBottom: 12,
@@ -249,16 +259,16 @@ const styles = StyleSheet.create({
   workoutTitle: {
     fontSize: 21,
     fontWeight: '800',
-    color: '#1A1A2E',
+    color: theme.colors.ink,
   },
   workoutDate: {
     fontSize: 13,
-    color: '#888888',
+    color: theme.colors.muted,
     marginTop: 2,
   },
   exerciseRow: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#E5E5E5',
+    borderTopColor: theme.colors.line,
     paddingTop: 12,
     marginTop: 12,
   },
@@ -272,16 +282,16 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '700',
-    color: '#1A1A2E',
+    color: theme.colors.ink,
   },
   exerciseWeight: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#4A90D9',
+    color: theme.colors.accent,
   },
   setSummary: {
     marginTop: 6,
     fontSize: 15,
-    color: '#444444',
+    color: theme.colors.inkSoft,
   },
 });

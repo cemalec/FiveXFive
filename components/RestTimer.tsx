@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Platform, StyleSheet, Text, TouchableOpacity, Vibration, View } from 'react-native';
+import { theme } from '../theme';
 
 const DURATION = 180; // 3 minutes in seconds
 
@@ -85,39 +86,43 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radius.lg,
+    borderWidth: 1,
+    borderColor: theme.colors.line,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.07,
+    shadowRadius: 16,
+    elevation: 4,
   },
   label: {
-    fontSize: 16,
-    color: '#555555',
+    fontSize: 15,
+    color: theme.colors.muted,
     fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   timerText: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#1A1A2E',
+    color: theme.colors.ink,
     fontVariant: ['tabular-nums'],
   },
   button: {
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 20,
-    backgroundColor: '#4A90D9',
-    borderRadius: 8,
+    backgroundColor: theme.colors.accent,
+    borderRadius: theme.radius.md,
   },
   buttonRunning: {
-    backgroundColor: '#C0392B', // red when running, to signal "this will cancel"
+    backgroundColor: theme.colors.danger,
   },
   buttonText: {
-    color: '#FFFFFF',
-    fontSize: 22,
+    color: theme.colors.white,
+    fontSize: 20,
     fontWeight: '700',
   },
 });

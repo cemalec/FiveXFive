@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Alert,
   SafeAreaView,
@@ -21,7 +21,8 @@ import {
   saveWorkoutState,
   standardIncrementsForUnit,
 } from '../storage/workoutStore';
-import { theme } from '../theme';
+import { themes, AppTheme, ThemeName } from '../theme';
+import { useTheme } from '../ThemeContext';
 
 type Props = {
   workoutState: WorkoutState;
@@ -39,6 +40,7 @@ const EXERCISES: { key: ExerciseKey; label: string }[] = [
 ];
 
 export default function SettingsScreen({ workoutState, onSave, onToggleUnit, onClose }: Props) {
+  const { theme, themeName, setThemeName } = useTheme();
   const unitLabel = workoutState.unit === 'lbs' ? 'lb' : 'kg';
   const [showIncrementSettings, setShowIncrementSettings] = useState(false);
   const [showWarmupSettings, setShowWarmupSettings] = useState(false);
@@ -203,6 +205,211 @@ export default function SettingsScreen({ workoutState, onSave, onToggleUnit, onC
       ]
     );
   }
+
+  const styles = useMemo(() => StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.colors.surface,
+      paddingHorizontal: 8,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    headerSide: {
+      width: 52,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    unitToggle: {
+      borderWidth: 1.5,
+      borderColor: theme.colors.primary,
+      borderRadius: theme.radius.sm,
+      paddingVertical: 4,
+    },
+    unitToggleText: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.colors.primary,
+    },
+    backArrow: {
+      fontSize: 38,
+      color: theme.colors.primary,
+      lineHeight: 42,
+    },
+    headerTitle: {
+      flex: 1,
+      textAlign: 'center',
+      fontSize: 20,
+      fontWeight: '700',
+      color: theme.colors.text,
+    },
+    scroll: {
+      padding: 24,
+      paddingBottom: 48,
+    },
+    sectionHeader: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: theme.colors.textMuted,
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+      marginBottom: 8,
+      marginTop: 28,
+    },
+    card: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.lg,
+      paddingHorizontal: 16,
+      ...theme.shadow.card,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 13,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: theme.colors.border,
+    },
+    rowLast: {
+      borderBottomWidth: 0,
+    },
+    rowLabel: {
+      fontSize: 16,
+      color: theme.colors.text,
+      flex: 1,
+    },
+    inputWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    input: {
+      width: 72,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: theme.radius.sm,
+      paddingHorizontal: 10,
+      paddingVertical: 7,
+      fontSize: 16,
+      textAlign: 'right',
+      color: theme.colors.text,
+    },
+    inputUnit: {
+      fontSize: 14,
+      color: theme.colors.textMuted,
+      width: 24,
+    },
+    saveButton: {
+      backgroundColor: theme.colors.accent,
+      borderRadius: theme.radius.lg,
+      paddingVertical: 16,
+      alignItems: 'center',
+      marginTop: 24,
+    },
+    saveButtonText: {
+      color: theme.colors.white,
+      fontSize: 18,
+      fontWeight: '700',
+    },
+    secondaryButton: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.lg,
+      borderWidth: 1,
+      borderColor: theme.colors.accent,
+      paddingVertical: 16,
+      alignItems: 'center',
+      marginTop: 20,
+    },
+    secondaryButtonText: {
+      color: theme.colors.accent,
+      fontSize: 16,
+      fontWeight: '700',
+    },
+    singleInputSection: {
+      paddingVertical: 14,
+    },
+    fullWidthInput: {
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      borderRadius: theme.radius.sm,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      fontSize: 16,
+      color: theme.colors.text,
+    },
+    roundButton: {
+      backgroundColor: theme.colors.surface,
+      borderWidth: 1,
+      borderColor: theme.colors.accent,
+      borderRadius: theme.radius.md,
+      paddingVertical: 14,
+      paddingHorizontal: 12,
+      alignItems: 'center',
+      marginTop: 14,
+    },
+    roundButtonLast: {
+      marginBottom: 14,
+    },
+    roundButtonText: {
+      color: theme.colors.accent,
+      fontSize: 16,
+      fontWeight: '700',
+      textAlign: 'center',
+    },
+    selectedActionButton: {
+      backgroundColor: theme.colors.accent,
+    },
+    selectedActionButtonText: {
+      color: theme.colors.white,
+    },
+    convertNote: {
+      fontSize: 13,
+      color: theme.colors.textMuted,
+      paddingVertical: 12,
+      lineHeight: 18,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: theme.colors.border,
+    },
+    convertRow: {
+      paddingVertical: 15,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: theme.colors.border,
+      alignItems: 'center',
+    },
+    convertRowLast: {
+      borderBottomWidth: 0,
+    },
+    convertRowDisabled: {
+      opacity: 0.3,
+    },
+    convertText: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: theme.colors.danger,
+    },
+    convertTextDisabled: {
+      color: theme.colors.textMuted,
+    },
+    themeRowActive: {
+      backgroundColor: theme.colors.primary + '18',
+    },
+    themeSwatch: {
+      width: 18,
+      height: 18,
+      borderRadius: 9,
+      marginRight: 12,
+    },
+    themeCheck: {
+      fontSize: 18,
+      color: theme.colors.primary,
+      fontWeight: '700',
+    },
+  }), [theme]);
 
   if (showIncrementSettings) {
     return (
@@ -384,6 +591,27 @@ export default function SettingsScreen({ workoutState, onSave, onToggleUnit, onC
           <Text style={styles.saveButtonText}>Save Changes</Text>
         </TouchableOpacity>
 
+        {/* Theme picker */}
+        <Text style={styles.sectionHeader}>Theme</Text>
+        <View style={styles.card}>
+          {(Object.entries(themes) as [ThemeName, AppTheme][]).map(([key, t], idx, arr) => (
+            <TouchableOpacity
+              key={key}
+              style={[styles.row, idx === arr.length - 1 && styles.rowLast, themeName === key && styles.themeRowActive]}
+              onPress={async () => {
+                const newState: WorkoutState = { ...workoutState, themeName: key };
+                setThemeName(key);
+                await saveWorkoutState(newState);
+                onSave(newState);
+              }}
+            >
+              <View style={[styles.themeSwatch, { backgroundColor: t.colors.primary }]} />
+              <Text style={styles.rowLabel}>{t.label}</Text>
+              {themeName === key && <Text style={styles.themeCheck}>✓</Text>}
+            </TouchableOpacity>
+          ))}
+        </View>
+
         {/* Permanent unit conversion */}
         <Text style={styles.sectionHeader}>Permanent Unit Conversion</Text>
         <View style={styles.card}>
@@ -415,194 +643,3 @@ export default function SettingsScreen({ workoutState, onSave, onToggleUnit, onC
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-    paddingHorizontal: 8,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-  },
-  headerSide: {
-    width: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  unitToggle: {
-    borderWidth: 1.5,
-    borderColor: theme.colors.primary,
-    borderRadius: theme.radius.sm,
-    paddingVertical: 4,
-  },
-  unitToggleText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: theme.colors.primary,
-  },
-  backArrow: {
-    fontSize: 38,
-    color: theme.colors.primary,
-    lineHeight: 42,
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 20,
-    fontWeight: '700',
-    color: theme.colors.text,
-  },
-  scroll: {
-    padding: 24,
-    paddingBottom: 48,
-  },
-  sectionHeader: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: theme.colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 8,
-    marginTop: 28,
-  },
-  card: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
-    paddingHorizontal: 16,
-    ...theme.shadow.card,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 13,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: theme.colors.border,
-  },
-  rowLast: {
-    borderBottomWidth: 0,
-  },
-  rowLabel: {
-    fontSize: 16,
-    color: theme.colors.text,
-    flex: 1,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  input: {
-    width: 72,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radius.sm,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    fontSize: 16,
-    textAlign: 'right',
-    color: theme.colors.text,
-  },
-  inputUnit: {
-    fontSize: 14,
-    color: theme.colors.textMuted,
-    width: 24,
-  },
-  saveButton: {
-    backgroundColor: theme.colors.accent,
-    borderRadius: theme.radius.lg,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginTop: 24,
-  },
-  saveButtonText: {
-    color: theme.colors.white,
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  secondaryButton: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.accent,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  secondaryButtonText: {
-    color: theme.colors.accent,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  singleInputSection: {
-    paddingVertical: 14,
-  },
-  fullWidthInput: {
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.radius.sm,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-    color: theme.colors.text,
-  },
-  roundButton: {
-    backgroundColor: theme.colors.surface,
-    borderWidth: 1,
-    borderColor: theme.colors.accent,
-    borderRadius: theme.radius.md,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    alignItems: 'center',
-    marginTop: 14,
-  },
-  roundButtonLast: {
-    marginBottom: 14,
-  },
-  roundButtonText: {
-    color: theme.colors.accent,
-    fontSize: 16,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  selectedActionButton: {
-    backgroundColor: theme.colors.accent,
-  },
-  selectedActionButtonText: {
-    color: theme.colors.white,
-  },
-  convertNote: {
-    fontSize: 13,
-    color: theme.colors.textMuted,
-    paddingVertical: 12,
-    lineHeight: 18,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: theme.colors.border,
-  },
-  convertRow: {
-    paddingVertical: 15,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: theme.colors.border,
-    alignItems: 'center',
-  },
-  convertRowLast: {
-    borderBottomWidth: 0,
-  },
-  convertRowDisabled: {
-    opacity: 0.3,
-  },
-  convertText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: theme.colors.danger,
-  },
-  convertTextDisabled: {
-    color: theme.colors.textMuted,
-  },
-});

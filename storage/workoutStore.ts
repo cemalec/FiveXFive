@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ThemeName } from '../theme';
 
 export type ExerciseKey = 'squat' | 'bench' | 'ohp' | 'row' | 'deadlift';
 
@@ -14,6 +15,7 @@ export type WorkoutState = {
   increments: Record<ExerciseKey, number>;
   warmupMode: WarmupMode;
   customWarmupPercentages: number[];
+  themeName: ThemeName;
 };
 
 export type WorkoutExerciseLog = {
@@ -177,6 +179,7 @@ export const DEFAULT_STATE: WorkoutState = {
   },
   warmupMode: 'interpolate',
   customWarmupPercentages: defaultWarmupPercentages(),
+  themeName: 'midnightCarbon',
 };
 
 // Load from storage, falling back to defaults for any missing fields

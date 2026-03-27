@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, Platform, StyleSheet, Text, TouchableOpacity, Vibration, View } from 'react-native';
-import { theme } from '../theme';
+import { useTheme } from '../ThemeContext';
 
 const DURATION = 180; // 3 minutes in seconds
 
@@ -10,6 +10,7 @@ type Props = {
 };
 
 export default function RestTimer({ startSignal = 0, resetSignal = 0 }: Props) {
+  const { theme } = useTheme();
   const [secondsLeft, setSecondsLeft] = useState(DURATION);
   const [isRunning, setIsRunning] = useState(false);
 
@@ -65,6 +66,53 @@ export default function RestTimer({ startSignal = 0, resetSignal = 0 }: Props) {
   const seconds = secondsLeft % 60;
   const display = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      alignItems: 'center',
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.xl,
+      paddingVertical: 20,
+      paddingHorizontal: 16,
+      marginBottom: 16,
+      borderLeftWidth: 3,
+      borderLeftColor: theme.colors.primary,
+      ...theme.shadow.card,
+    },
+    label: {
+      fontSize: 13,
+      color: theme.colors.textSecondary,
+      fontWeight: '600',
+      letterSpacing: 1.5,
+      textTransform: 'uppercase',
+      marginBottom: 4,
+    },
+    timerText: {
+      fontSize: 52,
+      fontWeight: '200',
+      color: theme.colors.primary,
+      fontVariant: ['tabular-nums'],
+      letterSpacing: 4,
+      marginBottom: 16,
+    },
+    button: {
+      paddingVertical: 10,
+      paddingHorizontal: 44,
+      backgroundColor: theme.colors.accent,
+      borderRadius: theme.radius.pill,
+    },
+    buttonRunning: {
+      backgroundColor: 'transparent',
+      borderWidth: 1.5,
+      borderColor: theme.colors.warning,
+    },
+    buttonText: {
+      color: theme.colors.white,
+      fontSize: 16,
+      fontWeight: '700',
+      letterSpacing: 0.5,
+    },
+  }), [theme]);
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Rest Timer</Text>
@@ -83,49 +131,3 @@ export default function RestTimer({ startSignal = 0, resetSignal = 0 }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.xl,
-    paddingVertical: 20,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    borderLeftWidth: 3,
-    borderLeftColor: theme.colors.primary,
-    ...theme.shadow.card,
-  },
-  label: {
-    fontSize: 13,
-    color: theme.colors.textSecondary,
-    fontWeight: '600',
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-    marginBottom: 4,
-  },
-  timerText: {
-    fontSize: 52,
-    fontWeight: '200',
-    color: theme.colors.primary,
-    fontVariant: ['tabular-nums'],
-    letterSpacing: 4,
-    marginBottom: 16,
-  },
-  button: {
-    paddingVertical: 10,
-    paddingHorizontal: 44,
-    backgroundColor: theme.colors.accent,
-    borderRadius: theme.radius.pill,
-  },
-  buttonRunning: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: theme.colors.warning,
-  },
-  buttonText: {
-    color: theme.colors.white,
-    fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-});

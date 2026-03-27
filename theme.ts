@@ -16,7 +16,7 @@ const spacing = {
   xxxl: 28,
 } as const;
 
-export type ThemeName = 'midnightCarbon' | 'forest' | 'ember';
+export type ThemeName = 'midnightCarbon' | 'forest' | 'ember' | 'foxfire';
 
 export type AppTheme = {
   name: ThemeName;
@@ -175,6 +175,46 @@ export const themes: Record<ThemeName, AppTheme> = {
         shadowOpacity: 0.65,
         shadowRadius: 20,
         elevation: 14,
+      },
+    },
+  },
+
+  foxfire: {
+    name: 'foxfire',
+    label: 'Foxfire',
+    colors: {
+      background: '#F4EDE2',
+      surface: '#FFF9F1',
+      primary: '#C66A3B',
+      accent: '#C66A3B',
+      danger: '#B85733',
+      success: '#3E6A5A',
+      warning: '#C4881A',
+      text: '#1F2430',
+      textSecondary: '#534E45',
+      textMuted: '#7B7467',
+      textSoft: '#9E9288',
+      border: '#DDD0BE',
+      overlay: 'rgba(19, 23, 32, 0.55)',
+      white: '#FFFFFF',
+      black: '#000000',
+    },
+    radius,
+    spacing,
+    shadow: {
+      card: {
+        shadowColor: '#8B6040',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.12,
+        shadowRadius: 8,
+        elevation: 3,
+      },
+      modal: {
+        shadowColor: '#1F2430',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.20,
+        shadowRadius: 20,
+        elevation: 12,
       },
     },
   },

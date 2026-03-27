@@ -5,7 +5,7 @@ import HistoryScreen from './HistoryScreen';
 import RepPicker from './RepPicker';
 import RestTimer from './RestTimer';
 import SettingsScreen from './SettingsScreen';
-import { appendWorkoutHistory, calculateWarmupWeights, DEFAULT_STATE, formatNumber, formatWeight, loadWorkoutHistory, loadWorkoutState, saveWorkoutState, saveWorkoutHistory, WorkoutLogEntry, WorkoutState } from '../storage/workoutStore';
+import { appendWorkoutHistory, calculateWarmupWeights, DEFAULT_STATE, formatNumber, formatWeight, loadWorkoutHistory, loadWorkoutState, saveWorkoutState, saveWorkoutHistory, silentBackupHistory, WorkoutLogEntry, WorkoutState } from '../storage/workoutStore';
 import { useTheme } from '../ThemeContext';
 
 // Tracks the state of a single set
@@ -283,7 +283,9 @@ export default function WorkoutScreen() {
     const newState: WorkoutState = { ...workoutState, nextDay, weights: newWeights };
     await Promise.all([saveWorkoutState(newState), appendWorkoutHistory(historyEntry)]);
     setWorkoutState(newState);
-    setHistory((prev) => [historyEntry, ...prev]);
+    const nextHistory = [historyEntry, ...history];
+    setHistory(nextHistory);
+    if (newState.autoBackup) silentBackupHistory(nextHistory);
 
     if (day === 'A') {
       setSquatASets(emptySets(5));

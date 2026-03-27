@@ -4,6 +4,7 @@ import {
   SafeAreaView,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -610,6 +611,27 @@ export default function SettingsScreen({ workoutState, onSave, onToggleUnit, onC
               {themeName === key && <Text style={styles.themeCheck}>✓</Text>}
             </TouchableOpacity>
           ))}
+        </View>
+
+        {/* Auto-backup */}
+        <Text style={styles.sectionHeader}>Data Backup</Text>
+        <View style={styles.card}>
+          <Text style={styles.convertNote}>
+            After each workout, silently saves a CSV backup to this device. Accessible in the iOS Files app under “On My iPhone › FiveXFive” — export a copy before reinstalling the app.
+          </Text>
+          <View style={[styles.row, styles.rowLast]}>
+            <Text style={styles.rowLabel}>Auto-backup after workout</Text>
+            <Switch
+              value={workoutState.autoBackup}
+              onValueChange={async (value) => {
+                const newState: WorkoutState = { ...workoutState, autoBackup: value };
+                await saveWorkoutState(newState);
+                onSave(newState);
+              }}
+              trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
+              thumbColor={theme.colors.white}
+            />
+          </View>
         </View>
 
         {/* Permanent unit conversion */}

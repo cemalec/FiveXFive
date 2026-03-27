@@ -19,6 +19,7 @@ export type WorkoutState = {
   warmupMode: WarmupMode;
   customWarmupPercentages: number[];
   themeName: ThemeName;
+  autoBackup: boolean;
 };
 
 export type WorkoutExerciseLog = {
@@ -183,6 +184,7 @@ export const DEFAULT_STATE: WorkoutState = {
   warmupMode: 'interpolate',
   customWarmupPercentages: defaultWarmupPercentages(),
   themeName: 'midnightCarbon',
+  autoBackup: true,
 };
 
 // Load from storage, falling back to defaults for any missing fields
@@ -230,6 +232,17 @@ export async function appendWorkoutHistory(entry: WorkoutLogEntry): Promise<void
 export async function saveWorkoutHistory(history: WorkoutLogEntry[]): Promise<void> {
   try {
     await AsyncStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+  } catch {}
+}
+
+// Silently writes the full history CSV to the app's Documents folder.
+// With UIFileSharingEnabled in app.json, this file is visible in iOS Files app
+// under "On My iPhone > FiveXFive" — survives as long as the app is installed.
+export async function silentBackupHistory(history: WorkoutLogEntry[]): Promise<void> {
+  try {
+    const csv = historyToCSV(history);
+    const file = new File(Paths.document, 'fivexfive_backup.csv');
+    file.write(csv);
   } catch {}
 }
 

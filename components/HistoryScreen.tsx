@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { formatWeight, Unit, WorkoutLogEntry } from '../storage/workoutStore';
-import { theme } from '../theme';
+import { useTheme } from '../ThemeContext';
 
 type Props = {
   history: WorkoutLogEntry[];
@@ -43,6 +43,7 @@ function formatGroupLabel(value: string, mode: GroupMode): string {
 }
 
 export default function HistoryScreen({ history, displayUnit, onClose }: Props) {
+  const { theme } = useTheme();
   const [groupMode, setGroupMode] = useState<GroupMode>('week');
 
   const groupedHistory = useMemo(() => {
@@ -55,6 +56,162 @@ export default function HistoryScreen({ history, displayUnit, onClose }: Props) 
     }
     return Array.from(groups.entries());
   }, [groupMode, history]);
+
+  const styles = useMemo(() => StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: theme.colors.surface,
+      paddingHorizontal: 8,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    headerSide: {
+      width: 52,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    backArrow: {
+      fontSize: 38,
+      color: theme.colors.primary,
+      lineHeight: 42,
+    },
+    headerTitle: {
+      flex: 1,
+      textAlign: 'center',
+      fontSize: 20,
+      fontWeight: '700',
+      color: theme.colors.text,
+    },
+    scroll: {
+      padding: 24,
+      paddingBottom: 48,
+    },
+    summaryCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.lg,
+      padding: 18,
+      marginBottom: 20,
+      ...theme.shadow.card,
+    },
+    summaryCount: {
+      fontSize: 30,
+      fontWeight: '800',
+      color: theme.colors.text,
+    },
+    summaryLabel: {
+      fontSize: 14,
+      color: theme.colors.textSoft,
+      marginTop: 2,
+    },
+    groupToggleRow: {
+      flexDirection: 'row',
+      gap: 10,
+      marginTop: 16,
+    },
+    groupToggle: {
+      flex: 1,
+      paddingVertical: 10,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.primary,
+      alignItems: 'center',
+    },
+    groupToggleActive: {
+      backgroundColor: theme.colors.primary,
+    },
+    groupToggleText: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: theme.colors.text,
+    },
+    groupToggleTextActive: {
+      color: theme.colors.white,
+    },
+    emptyCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.lg,
+      padding: 20,
+    },
+    emptyTitle: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: theme.colors.text,
+      marginBottom: 8,
+    },
+    emptyText: {
+      fontSize: 15,
+      color: theme.colors.textSoft,
+      lineHeight: 21,
+    },
+    groupSection: {
+      marginBottom: 24,
+    },
+    groupTitle: {
+      fontSize: 19,
+      fontWeight: '800',
+      color: theme.colors.text,
+    },
+    groupCount: {
+      fontSize: 13,
+      color: theme.colors.textMuted,
+      marginTop: 2,
+      marginBottom: 10,
+    },
+    workoutCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.lg,
+      padding: 16,
+      marginBottom: 20,
+      ...theme.shadow.card,
+    },
+    workoutHeader: {
+      marginBottom: 12,
+    },
+    workoutTitle: {
+      fontSize: 21,
+      fontWeight: '800',
+      color: theme.colors.text,
+    },
+    workoutDate: {
+      fontSize: 13,
+      color: theme.colors.textMuted,
+      marginTop: 2,
+    },
+    exerciseRow: {
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.colors.border,
+      paddingTop: 12,
+      marginTop: 12,
+    },
+    exerciseTopRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'baseline',
+      gap: 12,
+    },
+    exerciseName: {
+      flex: 1,
+      fontSize: 16,
+      fontWeight: '700',
+      color: theme.colors.text,
+    },
+    exerciseWeight: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: theme.colors.accent,
+    },
+    setSummary: {
+      marginTop: 6,
+      fontSize: 15,
+      color: theme.colors.textSecondary,
+    },
+  }), [theme]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -124,174 +281,3 @@ export default function HistoryScreen({ history, displayUnit, onClose }: Props) 
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.header,
-    paddingHorizontal: 8,
-    paddingVertical: 14,
-  },
-  headerSide: {
-    width: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  backArrow: {
-    fontSize: 38,
-    color: theme.colors.white,
-    lineHeight: 42,
-  },
-  headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: 20,
-    fontWeight: '700',
-    color: theme.colors.white,
-  },
-  scroll: {
-    paddingHorizontal: 20,
-    paddingTop: 18,
-    paddingBottom: 48,
-  },
-  summaryCard: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.line,
-    padding: 18,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.07,
-    shadowRadius: 16,
-    elevation: 4,
-  },
-  summaryCount: {
-    fontSize: 30,
-    fontWeight: '800',
-    color: theme.colors.ink,
-  },
-  summaryLabel: {
-    fontSize: 14,
-    color: theme.colors.muted,
-    marginTop: 2,
-  },
-  groupToggleRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 16,
-  },
-  groupToggle: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.line,
-    alignItems: 'center',
-    backgroundColor: theme.colors.backgroundSoft,
-  },
-  groupToggleActive: {
-    backgroundColor: theme.colors.header,
-    borderColor: theme.colors.header,
-  },
-  groupToggleText: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: theme.colors.ink,
-  },
-  groupToggleTextActive: {
-    color: theme.colors.white,
-  },
-  emptyCard: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.line,
-    padding: 20,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: theme.colors.ink,
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 15,
-    color: theme.colors.inkSoft,
-    lineHeight: 21,
-  },
-  groupSection: {
-    marginBottom: 24,
-  },
-  groupTitle: {
-    fontSize: 19,
-    fontWeight: '800',
-    color: theme.colors.ink,
-  },
-  groupCount: {
-    fontSize: 13,
-    color: theme.colors.muted,
-    marginTop: 2,
-    marginBottom: 10,
-  },
-  workoutCard: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.line,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.07,
-    shadowRadius: 16,
-    elevation: 4,
-  },
-  workoutHeader: {
-    marginBottom: 12,
-  },
-  workoutTitle: {
-    fontSize: 21,
-    fontWeight: '800',
-    color: theme.colors.ink,
-  },
-  workoutDate: {
-    fontSize: 13,
-    color: theme.colors.muted,
-    marginTop: 2,
-  },
-  exerciseRow: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: theme.colors.line,
-    paddingTop: 12,
-    marginTop: 12,
-  },
-  exerciseTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-    gap: 12,
-  },
-  exerciseName: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '700',
-    color: theme.colors.ink,
-  },
-  exerciseWeight: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: theme.colors.accent,
-  },
-  setSummary: {
-    marginTop: 6,
-    fontSize: 15,
-    color: theme.colors.inkSoft,
-  },
-});

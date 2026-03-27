@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import React from 'react';
 import { ActivityIndicator, Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import HistoryScreen from './HistoryScreen';
@@ -6,7 +6,7 @@ import RepPicker from './RepPicker';
 import RestTimer from './RestTimer';
 import SettingsScreen from './SettingsScreen';
 import { appendWorkoutHistory, calculateWarmupWeights, DEFAULT_STATE, formatNumber, formatWeight, loadWorkoutHistory, loadWorkoutState, saveWorkoutState, WorkoutLogEntry, WorkoutState } from '../storage/workoutStore';
-import { theme } from '../theme';
+import { useTheme } from '../ThemeContext';
 
 // Tracks the state of a single set
 type SetRecord = {
@@ -40,8 +40,81 @@ type ExerciseCardProps = {
 };
 
 function ExerciseCard({ name, weight, warmups, sets, onPress, onLongPress }: ExerciseCardProps) {
-  const setCount = sets.length;
-  const repLabel = `${setCount} set${setCount > 1 ? 's' : ''} × 5 reps`;
+  const { theme } = useTheme();
+  const styles = useMemo(() => StyleSheet.create({
+    exerciseCard: {
+      backgroundColor: theme.colors.surface,
+      borderRadius: theme.radius.lg,
+      padding: 16,
+      marginBottom: 24,
+      borderLeftWidth: 3,
+      borderLeftColor: theme.colors.primary,
+      shadowColor: theme.colors.primary,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.18,
+      shadowRadius: 14,
+      elevation: 6,
+    },
+    exerciseHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'baseline',
+      marginBottom: 12,
+    },
+    exerciseName: {
+      fontSize: 20,
+      fontWeight: '700',
+      color: theme.colors.text,
+    },
+    weightText: {
+      fontSize: 22,
+      fontWeight: '800',
+      color: theme.colors.accent,
+    },
+    exerciseDetail: {
+      fontSize: 13,
+      color: theme.colors.textMuted,
+      marginBottom: 2,
+    },
+    warmupText: {
+      fontSize: 12,
+      color: theme.colors.textSoft,
+      marginBottom: 6,
+    },
+    setRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 12,
+    },
+    checkbox: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      borderWidth: 2,
+      borderColor: theme.colors.accent,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    checkboxDone: {
+      backgroundColor: theme.colors.accent,
+      borderColor: theme.colors.accent,
+    },
+    checkboxFailed: {
+      backgroundColor: theme.colors.danger,
+      borderColor: theme.colors.danger,
+    },
+    checkmark: {
+      color: theme.colors.white,
+      fontSize: 20,
+      fontWeight: 'bold',
+    },
+    failReps: {
+      color: theme.colors.white,
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+  }), [theme]);
+  const repLabel = `${sets.length} set${sets.length > 1 ? 's' : ''} × 5 reps`;
   return (
     <View style={styles.exerciseCard}>
       <View style={styles.exerciseHeader}>
@@ -71,6 +144,7 @@ function ExerciseCard({ name, weight, warmups, sets, onPress, onLongPress }: Exe
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function WorkoutScreen() {
+  const { theme, setThemeName } = useTheme();
   const [workoutState, setWorkoutState] = useState<WorkoutState>(DEFAULT_STATE);
   const [history, setHistory] = useState<WorkoutLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,6 +158,7 @@ export default function WorkoutScreen() {
       setWorkoutState(state);
       setHistory(workoutHistory);
       setDay(state.nextDay);
+      setThemeName(state.themeName);
       setLoading(false);
     });
   }, []);
@@ -223,10 +298,118 @@ export default function WorkoutScreen() {
     Alert.alert('Workout Complete!', `Day ${day} done. Next up: Day ${nextDay}.`);
   }
 
+  const styles = useMemo(() => StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    scroll: {
+      flexGrow: 1,
+      padding: 24,
+    },
+    dayHeader: {
+      flexDirection: 'row',
+      marginBottom: 20,
+      gap: 10,
+    },
+    dayTab: {
+      flex: 1,
+      paddingVertical: 10,
+      borderRadius: theme.radius.pill,
+      borderWidth: 2,
+      borderColor: theme.colors.primary,
+      alignItems: 'center',
+    },
+    dayTabActive: {
+      backgroundColor: theme.colors.primary,
+    },
+    dayTabText: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: theme.colors.text,
+    },
+    dayTabTextActive: {
+      color: theme.colors.white,
+    },
+    finishButton: {
+      backgroundColor: theme.colors.accent,
+      borderRadius: theme.radius.pill,
+      paddingVertical: 16,
+      alignItems: 'center',
+      marginTop: 8,
+      marginBottom: 16,
+    },
+    finishButtonText: {
+      color: theme.colors.white,
+      fontSize: 20,
+      fontWeight: '800',
+    },
+    unitToggle: {
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      borderRadius: theme.radius.md,
+      borderWidth: 2,
+      borderColor: theme.colors.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    unitToggleText: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: theme.colors.text,
+    },
+    topBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: theme.colors.surface,
+      paddingHorizontal: 20,
+      paddingVertical: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.colors.border,
+    },
+    appTitle: {
+      fontSize: 20,
+      fontWeight: '800',
+      color: theme.colors.text,
+      letterSpacing: 1.5,
+    },
+    topBarAction: {
+      minWidth: 52,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 4,
+    },
+    topBarActionText: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.colors.primary,
+    },
+    historyBadge: {
+      minWidth: 18,
+      height: 18,
+      paddingHorizontal: 4,
+      borderRadius: 9,
+      backgroundColor: theme.colors.danger,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: 4,
+    },
+    historyBadgeText: {
+      fontSize: 11,
+      fontWeight: '800',
+      color: theme.colors.white,
+    },
+    gearIcon: {
+      fontSize: 24,
+      color: theme.colors.primary,
+    },
+  }), [theme]);
+
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea}>
-        <ActivityIndicator size="large" color="#4A90D9" style={{ flex: 1 }} />
+        <ActivityIndicator size="large" color={theme.colors.accent} style={{ flex: 1 }} />
       </SafeAreaView>
     );
   }
@@ -235,7 +418,7 @@ export default function WorkoutScreen() {
     return (
       <SettingsScreen
         workoutState={workoutState}
-        onSave={(newState) => setWorkoutState(newState)}
+        onSave={(newState) => { setWorkoutState(newState); setThemeName(newState.themeName); }}
         onToggleUnit={handleUnitToggle}
         onClose={() => setShowSettings(false)}
       />
@@ -327,199 +510,3 @@ export default function WorkoutScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  scroll: {
-    flexGrow: 1,
-    paddingHorizontal: 20,
-    paddingTop: 18,
-    paddingBottom: 28,
-  },
-  dayHeader: {
-    flexDirection: 'row',
-    marginBottom: 18,
-    gap: 10,
-    backgroundColor: theme.colors.surfaceMuted,
-    borderRadius: theme.radius.lg,
-    padding: 6,
-  },
-  dayTab: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.line,
-    alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-  },
-  dayTabActive: {
-    backgroundColor: theme.colors.header,
-    borderColor: theme.colors.header,
-  },
-  dayTabText: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: theme.colors.ink,
-  },
-  dayTabTextActive: {
-    color: theme.colors.white,
-  },
-  exerciseCard: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.line,
-    padding: 18,
-    marginBottom: 18,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.07,
-    shadowRadius: 16,
-    elevation: 4,
-  },
-  exerciseHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-    marginBottom: 10,
-  },
-  exerciseName: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: theme.colors.ink,
-  },
-  weightText: {
-    fontSize: 30,
-    fontWeight: '800',
-    color: theme.colors.accent,
-  },
-  exerciseDetail: {
-    fontSize: 12,
-    color: theme.colors.muted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
-    marginBottom: 2,
-  },
-  warmupText: {
-    fontSize: 12,
-    color: theme.colors.inkSoft,
-    marginBottom: 8,
-  },
-  setRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-    gap: 8,
-  },
-  checkbox: {
-    width: 46,
-    height: 46,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: theme.colors.accent,
-    backgroundColor: theme.colors.backgroundSoft,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxDone: {
-    backgroundColor: theme.colors.success,
-    borderColor: theme.colors.success,
-  },
-  checkboxFailed: {
-    backgroundColor: theme.colors.danger,
-    borderColor: theme.colors.danger,
-  },
-  checkmark: {
-    color: theme.colors.white,
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  failReps: {
-    color: theme.colors.white,
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  finishButton: {
-    backgroundColor: theme.colors.success,
-    borderRadius: theme.radius.lg,
-    paddingVertical: 18,
-    alignItems: 'center',
-    marginTop: 12,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 4,
-  },
-  finishButtonText: {
-    color: theme.colors.white,
-    fontSize: 19,
-    fontWeight: '800',
-    letterSpacing: 0.4,
-  },
-  unitToggle: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: theme.radius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.line,
-    backgroundColor: theme.colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  unitToggleText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: theme.colors.ink,
-  },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: theme.colors.header,
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.line,
-  },
-  appTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: theme.colors.white,
-    letterSpacing: 1.2,
-  },
-  topBarAction: {
-    minWidth: 58,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 4,
-  },
-  topBarActionText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: theme.colors.white,
-  },
-  historyBadge: {
-    minWidth: 18,
-    height: 18,
-    paddingHorizontal: 4,
-    borderRadius: 9,
-    backgroundColor: theme.colors.badge,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 4,
-  },
-  historyBadgeText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: theme.colors.white,
-  },
-  gearIcon: {
-    fontSize: 24,
-    color: theme.colors.white,
-  },
-});

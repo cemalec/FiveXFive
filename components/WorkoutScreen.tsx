@@ -5,7 +5,7 @@ import HistoryScreen from './HistoryScreen';
 import RepPicker from './RepPicker';
 import RestTimer from './RestTimer';
 import SettingsScreen from './SettingsScreen';
-import { appendWorkoutHistory, calculateWarmupWeights, DEFAULT_STATE, formatNumber, formatWeight, loadWorkoutHistory, loadWorkoutState, saveWorkoutState, WorkoutLogEntry, WorkoutState } from '../storage/workoutStore';
+import { appendWorkoutHistory, calculateWarmupWeights, DEFAULT_STATE, formatNumber, formatWeight, loadWorkoutHistory, loadWorkoutState, saveWorkoutState, saveWorkoutHistory, WorkoutLogEntry, WorkoutState } from '../storage/workoutStore';
 import { useTheme } from '../ThemeContext';
 
 // Tracks the state of a single set
@@ -432,6 +432,10 @@ export default function WorkoutScreen() {
         history={history}
         displayUnit={workoutState.unit}
         onClose={() => setShowHistory(false)}
+        onImport={async (entries) => {
+          await saveWorkoutHistory(entries);
+          setHistory(entries);
+        }}
       />
     );
   }

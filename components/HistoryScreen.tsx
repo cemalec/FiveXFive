@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { formatWeight, Unit, WorkoutLogEntry } from '../storage/workoutStore';
+import { Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { exportHistoryAsCSV, importHistoryFromCSV, formatWeight, Unit, WorkoutLogEntry } from '../storage/workoutStore';
 import { useTheme } from '../ThemeContext';
 
 type Props = {
   history: WorkoutLogEntry[];
   displayUnit: Unit;
   onClose: () => void;
+  onImport: (entries: WorkoutLogEntry[]) => void;
 };
 
 function formatDate(value: string): string {
@@ -42,9 +43,61 @@ function formatGroupLabel(value: string, mode: GroupMode): string {
   return `${weekStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`;
 }
 
-export default function HistoryScreen({ history, displayUnit, onClose }: Props) {
+export default function HistoryScreen({ history, displayUnit, onClose, onImport }: Props) {
   const { theme } = useTheme();
   const [groupMode, setGroupMode] = useState<GroupMode>('week');
+  const [busy, setBusy] = useState(false);
+
+  async function handleExport() {
+    if (history.length === 0) {
+      Alert.alert('Nothing to export', 'Log a workout first.');
+      return;
+    }
+    try {
+      setBusy(true);
+      await exportHistoryAsCSV(history);
+    } catch (e) {
+      Alert.alert('Export failed', String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleImport() {
+    try {
+      setBusy(true);
+      const imported = await importHistoryFromCSV();
+      if (!imported) { setBusy(false); return; }
+      Alert.alert(
+        'Import CSV',
+        `Found ${imported.length} workout${imported.length === 1 ? '' : 's'}. Merge with existing history or replace it?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Merge',
+            onPress: () => {
+              const merged = [...imported, ...history]
+                .filter((e, i, arr) => arr.findIndex((x) => x.id === e.id) === i)
+                .sort((a, b) => b.completedAt.localeCompare(a.completedAt));
+              onImport(merged);
+            },
+          },
+          {
+            text: 'Replace',
+            style: 'destructive',
+            onPress: () => {
+              const sorted = [...imported].sort((a, b) => b.completedAt.localeCompare(a.completedAt));
+              onImport(sorted);
+            },
+          },
+        ]
+      );
+    } catch (e) {
+      Alert.alert('Import failed', String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   const groupedHistory = useMemo(() => {
     const groups = new Map<string, WorkoutLogEntry[]>();
@@ -149,6 +202,24 @@ export default function HistoryScreen({ history, displayUnit, onClose }: Props) 
       color: theme.colors.textSoft,
       lineHeight: 21,
     },
+    exportImportRow: {
+      flexDirection: 'row',
+      gap: 10,
+      marginTop: 14,
+    },
+    exportImportButton: {
+      flex: 1,
+      paddingVertical: 10,
+      borderRadius: theme.radius.md,
+      borderWidth: 1,
+      borderColor: theme.colors.primary,
+      alignItems: 'center',
+    },
+    exportImportButtonText: {
+      fontSize: 14,
+      fontWeight: '700',
+      color: theme.colors.primary,
+    },
     groupSection: {
       marginBottom: 24,
     },
@@ -239,6 +310,14 @@ export default function HistoryScreen({ history, displayUnit, onClose }: Props) 
               onPress={() => setGroupMode('month')}
             >
               <Text style={[styles.groupToggleText, groupMode === 'month' && styles.groupToggleTextActive]}>Month</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.exportImportRow}>
+            <TouchableOpacity style={styles.exportImportButton} onPress={handleExport} disabled={busy}>
+              <Text style={styles.exportImportButtonText}>↑ Export CSV</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.exportImportButton} onPress={handleImport} disabled={busy}>
+              <Text style={styles.exportImportButtonText}>↓ Import CSV</Text>
             </TouchableOpacity>
           </View>
         </View>

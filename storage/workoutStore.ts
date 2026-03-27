@@ -1,4 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as DocumentPicker from 'expo-document-picker';
+import { File, Paths } from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { ThemeName } from '../theme';
 
 export type ExerciseKey = 'squat' | 'bench' | 'ohp' | 'row' | 'deadlift';
@@ -222,4 +225,83 @@ export async function appendWorkoutHistory(entry: WorkoutLogEntry): Promise<void
     const nextHistory = [entry, ...history];
     await AsyncStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(nextHistory));
   } catch {}
+}
+
+export async function saveWorkoutHistory(history: WorkoutLogEntry[]): Promise<void> {
+  try {
+    await AsyncStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+  } catch {}
+}
+
+// ─── CSV export / import ──────────────────────────────────────────────────────
+
+function csvCell(value: string | number): string {
+  const s = String(value);
+  return s.includes(',') ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+export function historyToCSV(history: WorkoutLogEntry[]): string {
+  const header = 'id,completedAt,day,storageUnit,exerciseName,weight,sets';
+  const rows = history.flatMap((entry) =>
+    entry.exercises.map((ex) =>
+      [
+        csvCell(entry.id),
+        csvCell(entry.completedAt),
+        csvCell(entry.day),
+        csvCell(entry.storageUnit),
+        csvCell(ex.name),
+        csvCell(ex.weight),
+        csvCell(ex.sets.join('/')),
+      ].join(',')
+    )
+  );
+  return [header, ...rows].join('\n');
+}
+
+export function csvToHistory(csv: string): WorkoutLogEntry[] {
+  const lines = csv.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const map = new Map<string, WorkoutLogEntry>();
+  for (const line of lines.slice(1)) {
+    if (!line.trim()) continue;
+    // Simple split — safe because our cells never embed newlines
+    const cells = line.split(',');
+    if (cells.length < 7) continue;
+    const [id, completedAt, day, storageUnit, exerciseName, weight, setsStr] = cells;
+    if (!id || !completedAt) continue;
+    if (!map.has(id)) {
+      map.set(id, {
+        id,
+        completedAt,
+        day: day as 'A' | 'B',
+        storageUnit: storageUnit as Unit,
+        exercises: [],
+      });
+    }
+    map.get(id)!.exercises.push({
+      name: exerciseName.replace(/^"|"$/g, ''),
+      weight: parseFloat(weight),
+      sets: setsStr.replace(/^"|"$/g, '').split('/').map(Number),
+    });
+  }
+  return Array.from(map.values());
+}
+
+export async function exportHistoryAsCSV(history: WorkoutLogEntry[]): Promise<void> {
+  const csv = historyToCSV(history);
+  const file = new File(Paths.cache, 'fivexfive_history.csv');
+  file.write(csv);
+  const canShare = await Sharing.isAvailableAsync();
+  if (canShare) {
+    await Sharing.shareAsync(file.uri, { mimeType: 'text/csv', dialogTitle: 'Export Workout History', UTI: 'public.comma-separated-values-text' });
+  }
+}
+
+export async function importHistoryFromCSV(): Promise<WorkoutLogEntry[] | null> {
+  const result = await DocumentPicker.getDocumentAsync({ type: ['text/csv', 'text/plain', '*/*'], copyToCacheDirectory: true });
+  if (result.canceled || !result.assets?.[0]) return null;
+  const file = new File(result.assets[0].uri);
+  const content = await file.text();
+  const entries = csvToHistory(content);
+  return entries.length > 0 ? entries : null;
 }

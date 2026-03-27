@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default function RestTimer({ startSignal = 0, resetSignal = 0 }: Props) {
-  const { theme } = useTheme();
+  const { theme, themeName } = useTheme();
   const [secondsLeft, setSecondsLeft] = useState(DURATION);
   const [isRunning, setIsRunning] = useState(false);
 
@@ -74,8 +74,9 @@ export default function RestTimer({ startSignal = 0, resetSignal = 0 }: Props) {
       paddingVertical: 20,
       paddingHorizontal: 16,
       marginBottom: 16,
-      borderLeftWidth: 3,
-      borderLeftColor: theme.colors.primary,
+      ...(themeName === 'foxfire'
+        ? { borderWidth: 1.5, borderColor: theme.colors.primary }
+        : { borderLeftWidth: 3, borderLeftColor: theme.colors.primary }),
       ...theme.shadow.card,
     },
     label: {

@@ -40,15 +40,16 @@ type ExerciseCardProps = {
 };
 
 function ExerciseCard({ name, weight, warmups, sets, onPress, onLongPress }: ExerciseCardProps) {
-  const { theme } = useTheme();
+  const { theme, themeName } = useTheme();
   const styles = useMemo(() => StyleSheet.create({
     exerciseCard: {
       backgroundColor: theme.colors.surface,
       borderRadius: theme.radius.lg,
       padding: 16,
       marginBottom: 24,
-      borderLeftWidth: 3,
-      borderLeftColor: theme.colors.primary,
+      ...(themeName === 'foxfire'
+        ? { borderWidth: 1.5, borderColor: theme.colors.primary }
+        : { borderLeftWidth: 3, borderLeftColor: theme.colors.primary }),
       shadowColor: theme.colors.primary,
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.18,
@@ -96,8 +97,8 @@ function ExerciseCard({ name, weight, warmups, sets, onPress, onLongPress }: Exe
       justifyContent: 'center',
     },
     checkboxDone: {
-      backgroundColor: theme.colors.accent,
-      borderColor: theme.colors.accent,
+      backgroundColor: themeName === 'foxfire' ? theme.colors.success : theme.colors.accent,
+      borderColor: themeName === 'foxfire' ? theme.colors.success : theme.colors.accent,
     },
     checkboxFailed: {
       backgroundColor: theme.colors.danger,

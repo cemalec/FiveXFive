@@ -9,18 +9,20 @@ A mobile app built with **React Native + Expo** that guides you through a classi
 The 5×5 program alternates between two workout days — **Day A** and **Day B** — every session.
 
 ### Day A
-| Exercise | Sets | Reps |
-|---|---|---|
-| Squat | 5 | 5 |
-| Bench Press | 5 | 5 |
-| Barbell Row | 5 | 5 |
+
+| Exercise    | Sets | Reps |
+| ----------- | ---- | ---- |
+| Squat       | 5    | 5    |
+| Bench Press | 5    | 5    |
+| Barbell Row | 5    | 5    |
 
 ### Day B
-| Exercise | Sets | Reps |
-|---|---|---|
-| Squat | 5 | 5 |
-| Overhead Press | 5 | 5 |
-| Deadlift | 1 | 5 |
+
+| Exercise       | Sets | Reps |
+| -------------- | ---- | ---- |
+| Squat          | 5    | 5    |
+| Overhead Press | 5    | 5    |
+| Deadlift       | 1    | 5    |
 
 Each working set is preceded by warm-up sets to prepare your body and reduce injury risk.
 
@@ -49,11 +51,11 @@ This app is built with **React Native + Expo** because:
 
 ## Prerequisites
 
-| Tool | Install |
-|------|---------|
-| **Node.js 18+** | <https://nodejs.org> |
+| Tool                | Install                                                                                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Node.js 18+**     | <https://nodejs.org>                                                                                                                             |
 | **Expo Go** (phone) | [iOS App Store](https://apps.apple.com/app/expo-go/id982107779) · [Google Play](https://play.google.com/store/apps/details?id=host.exp.exponent) |
-| **VS Code** | <https://code.visualstudio.com> |
+| **VS Code**         | <https://code.visualstudio.com>                                                                                                                  |
 
 ---
 
@@ -75,13 +77,13 @@ Scan the QR code with **Expo Go** on your phone (or press `a` for Android emulat
 
 When you open this folder in VS Code you will be prompted to install the recommended extensions (stored in `.vscode/extensions.json`):
 
-| Extension | Purpose |
-|-----------|---------|
-| `expo.vscode-expo-tools` | Expo-specific IntelliSense & debugging |
-| `msjsdiag.vscode-react-native` | React Native debugger |
-| `dbaeumer.vscode-eslint` | Linting |
-| `esbenp.prettier-vscode` | Auto-formatting on save |
-| `ms-vscode.vscode-typescript-next` | Latest TypeScript language features |
+| Extension                          | Purpose                                |
+| ---------------------------------- | -------------------------------------- |
+| `expo.vscode-expo-tools`           | Expo-specific IntelliSense & debugging |
+| `msjsdiag.vscode-react-native`     | React Native debugger                  |
+| `dbaeumer.vscode-eslint`           | Linting                                |
+| `esbenp.prettier-vscode`           | Auto-formatting on save                |
+| `ms-vscode.vscode-typescript-next` | Latest TypeScript language features    |
 
 ---
 
@@ -91,13 +93,15 @@ The app uses [`@react-native-async-storage/async-storage`](https://react-native-
 
 ```ts
 // Save
-await AsyncStorage.setItem('@fivexfive_state', JSON.stringify(workoutState));
+await AsyncStorage.setItem("@fivexfive_state", JSON.stringify(workoutState));
 
 // Load
-const saved = await AsyncStorage.getItem('@fivexfive_state');
+const saved = await AsyncStorage.getItem("@fivexfive_state");
 ```
 
 All data lives **only on the device** — nothing is sent over the network.
+
+Workout history can also be exported as CSV on demand. Automatic CSV backup is **off by default** and must be explicitly enabled in Settings because it writes a device-local backup file.
 
 ---
 

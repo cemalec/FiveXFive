@@ -99,6 +99,8 @@ const saved = await AsyncStorage.getItem('@fivexfive_state');
 
 All data lives **only on the device** — nothing is sent over the network.
 
+Workout history can also be exported as CSV on demand. Automatic CSV backup is **off by default** and must be explicitly enabled in Settings because it writes a device-local backup file.
+
 ---
 
 ## Project Structure

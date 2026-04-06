@@ -617,14 +617,33 @@ export default function SettingsScreen({ workoutState, onSave, onToggleUnit, onC
         <Text style={styles.sectionHeader}>Data Backup</Text>
         <View style={styles.card}>
           <Text style={styles.convertNote}>
-            After each workout, silently saves a CSV backup to this device. Accessible in the iOS Files app under “On My iPhone › FiveXFive” — export a copy before reinstalling the app.
+            Optional. When enabled, each completed workout updates a CSV backup stored on this device. On iOS, that backup can be copied out through the Files app while the app remains installed.
           </Text>
           <View style={[styles.row, styles.rowLast]}>
             <Text style={styles.rowLabel}>Auto-backup after workout</Text>
             <Switch
               value={workoutState.autoBackup}
               onValueChange={async (value) => {
-                const newState: WorkoutState = { ...workoutState, autoBackup: value };
+                if (value) {
+                  Alert.alert(
+                    'Enable auto-backup?',
+                    'This stores a device-local CSV backup that can be copied from the Files app while the app is installed.',
+                    [
+                      { text: 'Cancel', style: 'cancel' },
+                      {
+                        text: 'Enable',
+                        onPress: async () => {
+                          const newState: WorkoutState = { ...workoutState, autoBackup: true };
+                          await saveWorkoutState(newState);
+                          onSave(newState);
+                        },
+                      },
+                    ]
+                  );
+                  return;
+                }
+
+                const newState: WorkoutState = { ...workoutState, autoBackup: false };
                 await saveWorkoutState(newState);
                 onSave(newState);
               }}

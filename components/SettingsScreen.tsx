@@ -40,6 +40,14 @@ const EXERCISES: { key: ExerciseKey; label: string }[] = [
   { key: "deadlift", label: "Deadlift" },
 ];
 
+const LIGHT_THEME_NAMES: ThemeName[] = ["linenSlate", "paperMint", "foxfire"];
+const DARK_THEME_NAMES: ThemeName[] = [
+  "midnightCarbon",
+  "evergreenCanopy",
+  "emberForge",
+  "neonPulse",
+];
+
 export default function SettingsScreen({
   workoutState,
   onSave,
@@ -455,6 +463,14 @@ export default function SettingsScreen({
           color: theme.colors.primary,
           fontWeight: "700",
         },
+        themeGroupHeader: {
+          fontSize: 12,
+          color: theme.colors.textMuted,
+          textTransform: "uppercase",
+          letterSpacing: 1,
+          paddingTop: 12,
+          paddingBottom: 4,
+        },
       }),
     [theme],
   );
@@ -734,13 +750,15 @@ export default function SettingsScreen({
         {/* Theme picker */}
         <Text style={styles.sectionHeader}>Theme</Text>
         <View style={styles.card}>
-          {(Object.entries(themes) as [ThemeName, AppTheme][]).map(
-            ([key, t], idx, arr) => (
+          <Text style={styles.themeGroupHeader}>Light</Text>
+          {LIGHT_THEME_NAMES.map((key, idx) => {
+            const t = themes[key];
+            return (
               <TouchableOpacity
                 key={key}
                 style={[
                   styles.row,
-                  idx === arr.length - 1 && styles.rowLast,
+                  idx === LIGHT_THEME_NAMES.length - 1 && styles.rowLast,
                   themeName === key && styles.themeRowActive,
                 ]}
                 onPress={async () => {
@@ -762,8 +780,41 @@ export default function SettingsScreen({
                 <Text style={styles.rowLabel}>{t.label}</Text>
                 {themeName === key && <Text style={styles.themeCheck}>✓</Text>}
               </TouchableOpacity>
-            ),
-          )}
+            );
+          })}
+
+          <Text style={styles.themeGroupHeader}>Dark</Text>
+          {DARK_THEME_NAMES.map((key, idx) => {
+            const t = themes[key];
+            return (
+              <TouchableOpacity
+                key={key}
+                style={[
+                  styles.row,
+                  idx === DARK_THEME_NAMES.length - 1 && styles.rowLast,
+                  themeName === key && styles.themeRowActive,
+                ]}
+                onPress={async () => {
+                  const newState: WorkoutState = {
+                    ...workoutState,
+                    themeName: key,
+                  };
+                  setThemeName(key);
+                  await saveWorkoutState(newState);
+                  onSave(newState);
+                }}
+              >
+                <View
+                  style={[
+                    styles.themeSwatch,
+                    { backgroundColor: t.colors.primary },
+                  ]}
+                />
+                <Text style={styles.rowLabel}>{t.label}</Text>
+                {themeName === key && <Text style={styles.themeCheck}>✓</Text>}
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {/* Auto-backup */}

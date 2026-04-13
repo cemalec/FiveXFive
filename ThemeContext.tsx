@@ -8,13 +8,13 @@ type ThemeContextValue = {
 };
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: themes.midnightCarbon,
-  themeName: 'midnightCarbon',
+  theme: themes.linenSlate,
+  themeName: 'linenSlate',
   setThemeName: () => {},
 });
 
 export function ThemeProvider({
-  initialTheme = 'midnightCarbon',
+  initialTheme = 'linenSlate',
   children,
 }: {
   initialTheme?: ThemeName;

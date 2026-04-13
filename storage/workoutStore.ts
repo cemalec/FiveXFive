@@ -46,9 +46,12 @@ const EXERCISE_KEYS: ExerciseKey[] = [
 const VALID_UNITS: Unit[] = ["lbs", "kg"];
 const VALID_THEME_NAMES: ThemeName[] = [
   "midnightCarbon",
-  "forest",
-  "ember",
+  "evergreenCanopy",
+  "emberForge",
   "foxfire",
+  "paperMint",
+  "neonPulse",
+  "linenSlate",
 ];
 const VALID_WARMUP_MODES: WarmupMode[] = ["interpolate", "percentages"];
 const MAX_STORED_WEIGHT = 5000;
@@ -256,7 +259,7 @@ export const DEFAULT_STATE: WorkoutState = {
   },
   warmupMode: "interpolate",
   customWarmupPercentages: defaultWarmupPercentages(),
-  themeName: "midnightCarbon",
+  themeName: "linenSlate",
   autoBackup: false,
 };
 
@@ -282,9 +285,21 @@ function sanitizeUnit(value: unknown, fallback: Unit): Unit {
 }
 
 function sanitizeThemeName(value: unknown, fallback: ThemeName): ThemeName {
-  return VALID_THEME_NAMES.includes(value as ThemeName)
-    ? (value as ThemeName)
-    : fallback;
+  if (typeof value === "string") {
+    const migrated =
+      value === "forest"
+        ? "evergreenCanopy"
+        : value === "ember"
+          ? "emberForge"
+          : value === "grokNeon"
+            ? "neonPulse"
+            : value;
+
+    if (VALID_THEME_NAMES.includes(migrated as ThemeName)) {
+      return migrated as ThemeName;
+    }
+  }
+  return fallback;
 }
 
 function sanitizeWarmupMode(value: unknown, fallback: WarmupMode): WarmupMode {

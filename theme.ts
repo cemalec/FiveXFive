@@ -16,7 +16,14 @@ const spacing = {
   xxxl: 28,
 } as const;
 
-export type ThemeName = 'midnightCarbon' | 'forest' | 'ember' | 'foxfire';
+export type ThemeName =
+  | 'midnightCarbon'
+  | 'forestFloor'
+  | 'emberForge'
+  | 'foxfireLeaves'
+  | 'paperMint'
+  | 'neonPulse'
+  | 'linenSlate';
 
 export type AppTheme = {
   name: ThemeName;
@@ -99,9 +106,9 @@ export const themes: Record<ThemeName, AppTheme> = {
     },
   },
 
-  forest: {
-    name: 'forest',
-    label: 'Forest',
+  forestFloor: {
+    name: 'forestFloor',
+    label: 'Forest Floor',
     colors: {
       background: '#050A05',
       surface: '#0E1A0F',
@@ -139,9 +146,9 @@ export const themes: Record<ThemeName, AppTheme> = {
     },
   },
 
-  ember: {
-    name: 'ember',
-    label: 'Ember',
+  emberForge: {
+    name: 'emberForge',
+    label: 'Ember Forge',
     colors: {
       background: '#0A0603',
       surface: '#1A1108',
@@ -179,9 +186,9 @@ export const themes: Record<ThemeName, AppTheme> = {
     },
   },
 
-  foxfire: {
-    name: 'foxfire',
-    label: 'Foxfire',
+  foxfireLeaves: {
+    name: 'foxfireLeaves',
+    label: 'Foxfire Leaves',
     colors: {
       background: '#F4EDE2',
       surface: '#FFF9F1',
@@ -218,7 +225,127 @@ export const themes: Record<ThemeName, AppTheme> = {
       },
     },
   },
+
+  paperMint: {
+    name: 'paperMint',
+    label: 'Paper Mint',
+    colors: {
+      background: '#F6FBF8',
+      surface: '#FFFFFF',
+      primary: '#1F8C6A',
+      accent: '#2FA67D',
+      danger: '#C14B4B',
+      success: '#2D8A5E',
+      warning: '#B9861A',
+      text: '#1F2A24',
+      textSecondary: '#4D5E56',
+      textMuted: '#7C8C85',
+      textSoft: '#99A79F',
+      border: '#D4E4DC',
+      overlay: 'rgba(20, 31, 27, 0.45)',
+      white: '#FFFFFF',
+      black: '#000000',
+    },
+    radius,
+    spacing,
+    shadow: {
+      card: {
+        shadowColor: '#1F8C6A',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.10,
+        shadowRadius: 9,
+        elevation: 3,
+      },
+      modal: {
+        shadowColor: '#1F2A24',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.18,
+        shadowRadius: 18,
+        elevation: 10,
+      },
+    },
+  },
+
+  neonPulse: {
+    name: 'neonPulse',
+    label: 'Neon Pulse',
+    colors: {
+      background: '#0A0A0A',
+      surface: '#1A1A1A',
+      primary: '#00D4FF',
+      accent: '#FF0080',
+      danger: '#FF4444',
+      success: '#00FF88',
+      warning: '#FFA500',
+      text: '#FFFFFF',
+      textSecondary: '#CCCCCC',
+      textMuted: '#888888',
+      textSoft: '#AAAAAA',
+      border: '#333333',
+      overlay: 'rgba(0, 0, 0, 0.8)',
+      white: '#FFFFFF',
+      black: '#000000',
+    },
+    radius,
+    spacing,
+    shadow: {
+      card: {
+        shadowColor: '#00D4FF',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.30,
+        shadowRadius: 12,
+        elevation: 5,
+      },
+      modal: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.8,
+        shadowRadius: 20,
+        elevation: 20,
+      },
+    },
+  },
+
+  linenSlate: {
+    name: 'linenSlate',
+    label: 'Linen Slate',
+    colors: {
+      background: '#F3F4F6',
+      surface: '#FFFFFF',
+      primary: '#50627A',
+      accent: '#5E738D',
+      danger: '#BE4E4E',
+      success: '#3B7A63',
+      warning: '#B07E1E',
+      text: '#1F2937',
+      textSecondary: '#4B5563',
+      textMuted: '#6B7280',
+      textSoft: '#9CA3AF',
+      border: '#D7DCE3',
+      overlay: 'rgba(17, 24, 39, 0.45)',
+      white: '#FFFFFF',
+      black: '#000000',
+    },
+    radius,
+    spacing,
+    shadow: {
+      card: {
+        shadowColor: '#475569',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.10,
+        shadowRadius: 10,
+        elevation: 3,
+      },
+      modal: {
+        shadowColor: '#111827',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.16,
+        shadowRadius: 18,
+        elevation: 10,
+      },
+    },
+  },
 };
 
 // Default export kept for any code that hasn't migrated to useTheme() yet
-export const theme = themes.midnightCarbon;
+export const theme = themes.linenSlate;

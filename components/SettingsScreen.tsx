@@ -40,10 +40,10 @@ const EXERCISES: { key: ExerciseKey; label: string }[] = [
   { key: "deadlift", label: "Deadlift" },
 ];
 
-const LIGHT_THEME_NAMES: ThemeName[] = ["linenSlate", "paperMint", "foxfire"];
+const LIGHT_THEME_NAMES: ThemeName[] = ["linenSlate", "paperMint", "foxfireLeaves"];
 const DARK_THEME_NAMES: ThemeName[] = [
   "midnightCarbon",
-  "evergreenCanopy",
+  "forestFloor",
   "emberForge",
   "neonPulse",
 ];

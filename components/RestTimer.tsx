@@ -205,7 +205,7 @@ export default function RestTimer({ startSignal = 0, resetSignal = 0 }: Props) {
           paddingVertical: 20,
           paddingHorizontal: 16,
           marginBottom: 16,
-          ...(themeName === "foxfire"
+          ...(themeName === "foxfireLeaves"
             ? { borderWidth: 1.5, borderColor: theme.colors.primary }
             : { borderLeftWidth: 3, borderLeftColor: theme.colors.primary }),
           ...theme.shadow.card,

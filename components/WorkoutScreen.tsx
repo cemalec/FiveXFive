@@ -47,7 +47,7 @@ function ExerciseCard({ name, weight, warmups, sets, onPress, onLongPress }: Exe
       borderRadius: theme.radius.lg,
       padding: 16,
       marginBottom: 24,
-      ...(themeName === 'foxfire'
+      ...(themeName === 'foxfireLeaves'
         ? { borderWidth: 1.5, borderColor: theme.colors.primary }
         : { borderLeftWidth: 3, borderLeftColor: theme.colors.primary }),
       shadowColor: theme.colors.primary,
@@ -97,8 +97,8 @@ function ExerciseCard({ name, weight, warmups, sets, onPress, onLongPress }: Exe
       justifyContent: 'center',
     },
     checkboxDone: {
-      backgroundColor: themeName === 'foxfire' ? theme.colors.success : theme.colors.accent,
-      borderColor: themeName === 'foxfire' ? theme.colors.success : theme.colors.accent,
+      backgroundColor: themeName === 'foxfireLeaves' ? theme.colors.success : theme.colors.accent,
+      borderColor: themeName === 'foxfireLeaves' ? theme.colors.success : theme.colors.accent,
     },
     checkboxFailed: {
       backgroundColor: theme.colors.danger,

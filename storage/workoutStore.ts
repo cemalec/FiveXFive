@@ -46,9 +46,9 @@ const EXERCISE_KEYS: ExerciseKey[] = [
 const VALID_UNITS: Unit[] = ["lbs", "kg"];
 const VALID_THEME_NAMES: ThemeName[] = [
   "midnightCarbon",
-  "evergreenCanopy",
+  "forestFloor",
   "emberForge",
-  "foxfire",
+  "foxfireLeaves",
   "paperMint",
   "neonPulse",
   "linenSlate",
@@ -285,21 +285,9 @@ function sanitizeUnit(value: unknown, fallback: Unit): Unit {
 }
 
 function sanitizeThemeName(value: unknown, fallback: ThemeName): ThemeName {
-  if (typeof value === "string") {
-    const migrated =
-      value === "forest"
-        ? "evergreenCanopy"
-        : value === "ember"
-          ? "emberForge"
-          : value === "grokNeon"
-            ? "neonPulse"
-            : value;
-
-    if (VALID_THEME_NAMES.includes(migrated as ThemeName)) {
-      return migrated as ThemeName;
-    }
-  }
-  return fallback;
+  return VALID_THEME_NAMES.includes(value as ThemeName)
+    ? (value as ThemeName)
+    : fallback;
 }
 
 function sanitizeWarmupMode(value: unknown, fallback: WarmupMode): WarmupMode {

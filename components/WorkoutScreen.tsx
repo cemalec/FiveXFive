@@ -421,7 +421,13 @@ export default function WorkoutScreen() {
     return (
       <SettingsScreen
         workoutState={workoutState}
-        onSave={(newState) => { setWorkoutState(newState); setThemeName(newState.themeName); }}
+        onSave={(newState) => {
+          setWorkoutState(newState);
+          setThemeName(newState.themeName);
+          if (newState.autoBackup && !workoutState.autoBackup) {
+            silentBackupHistory(history);
+          }
+        }}
         onToggleUnit={handleUnitToggle}
         onClose={() => setShowSettings(false)}
       />

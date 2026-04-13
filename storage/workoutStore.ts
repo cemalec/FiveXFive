@@ -516,7 +516,9 @@ export async function silentBackupHistory(
     const csv = historyToCSV(history);
     const file = new File(Paths.document, "fivexfive_backup.csv");
     file.write(csv);
-  } catch {}
+  } catch (error) {
+    console.warn("Auto-backup failed:", error);
+  }
 }
 
 // ─── CSV export / import ──────────────────────────────────────────────────────
